@@ -42,6 +42,12 @@ class PreloadScene extends Phaser.Scene {
             loadingText.destroy();
         });
 
+        this.load.on('loaderror', (file) => {
+            console.error(`[PreloadScene] Failed to load: ${file.key} (${file.url})`);
+            loadingText.setText(`読み込みエラー: ${file.key}`);
+            loadingText.setColor('#ff4444');
+        });
+
         // --- JSONデータ ---
         this.load.json('ingredients', 'assets/data/ingredients.json');
         this.load.json('soups', 'assets/data/soups.json');

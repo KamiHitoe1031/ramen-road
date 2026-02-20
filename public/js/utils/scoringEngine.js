@@ -174,7 +174,7 @@ class ScoringEngine {
     // レイヤー4: 称号セレモニー
     // ========================================
 
-    calcLayer4(allResults, titlesData) {
+    calcLayer4(allResults, titlesData, customerDataList) {
         const awarded = [];
 
         // --- 比較系 ---
@@ -241,7 +241,7 @@ class ScoringEngine {
                         break;
                     }
                     case 'customer_all_conditions_met':
-                        met = this.checkPerfectCustomer(p.scores.layer3);
+                        met = this.checkPerfectCustomer(p.scores.layer3, customerDataList);
                         break;
                 }
 
@@ -459,16 +459,11 @@ class ScoringEngine {
     }
 
     /** お客さん1人の全条件達成チェック */
-    checkPerfectCustomer(layer3) {
-        for (const custId in layer3.customers) {
-            const cust = layer3.customers[custId];
-            // お客さんの全bonusが達成されていれば true
-            // customerDataから元の条件数を取得する必要があるため、
-            // subtotalがmaxBonusと一致するかで判定
-            // ※ 簡易実装: bonuses配列の長さが元データの条件数と一致
-            if (cust.bonuses.length > 0 && cust.subtotal > 0) {
-                // TODO: 正確にはcustomer元データの条件数と比較すべき
-                // Phase 2で修正
+    checkPerfectCustomer(layer3, customerDataList) {
+        if (!customerDataList) return false;
+        for (const customer of customerDataList) {
+            const result = layer3.customers[customer.id];
+            if (result && result.bonuses.length === customer.bonuses.length) {
                 return true;
             }
         }

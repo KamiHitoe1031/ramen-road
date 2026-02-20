@@ -111,4 +111,5 @@ const REGISTRY = {
     PLAYER_GRID: 'playerGrid',
     SCORING_RESULT: 'scoringResult',
     ALL_PLAYERS: 'allPlayers',          // Phase 2以降: AI含む全プレイヤーデータ
+    FINAL_SCORES: 'finalScores',        // 最終スコア（称号ボーナス込み）
 };

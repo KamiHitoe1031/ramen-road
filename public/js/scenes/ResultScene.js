@@ -8,7 +8,7 @@ class ResultScene extends Phaser.Scene {
 
     create() {
         const { width, height } = this.cameras.main;
-        const finalScores = this.registry.get('finalScores');
+        const finalScores = this.registry.get(REGISTRY.FINAL_SCORES);
         const allPlayers = this.registry.get(REGISTRY.ALL_PLAYERS);
         const characters = this.registry.get('data_characters');
         const medals = ['🥇', '🥈', '🥉'];

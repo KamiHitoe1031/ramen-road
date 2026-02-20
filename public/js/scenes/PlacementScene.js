@@ -18,6 +18,7 @@ class PlacementScene extends Phaser.Scene {
         this.handCards = [];     // 手札カードのGameObject配列
         this.dragTarget = null;  // ドラッグ中の具材
         this.timer = GAME_CONFIG.TIMER_PLACEMENT;
+        this.submitted = false;  // 二重送信防止
     }
 
     create() {
@@ -258,6 +259,8 @@ class PlacementScene extends Phaser.Scene {
     }
 
     submitPlacement() {
+        if (this.submitted) return;
+        this.submitted = true;
         console.log('[Placement] Grid submitted:', JSON.stringify(this.grid));
         this.registry.set(REGISTRY.PLAYER_GRID, this.grid);
 
