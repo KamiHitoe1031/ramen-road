@@ -1,0 +1,6 @@
+[
+  { "id": "tonkotsu", "name": "豚骨", "color": "#F5E6CA", "region": "hakata", "spriteKey": "bowl_tonkotsu" },
+  { "id": "shoyu", "name": "醤油", "color": "#8B6914", "region": "tokyo", "spriteKey": "bowl_shoyu" },
+  { "id": "miso", "name": "味噌", "color": "#D4A017", "region": "sapporo", "spriteKey": "bowl_miso" },
+  { "id": "shio", "name": "塩", "color": "#E8E4C9", "region": "hakodate", "spriteKey": "bowl_shio" }
+]

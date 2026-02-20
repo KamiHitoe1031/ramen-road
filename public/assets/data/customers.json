@@ -1,0 +1,92 @@
+[
+  {
+    "id": "takeshi", "name": "ガテン系のタケシ", "type": "こってり",
+    "quote": "こってりのが好きだね！", "spriteKey": "customer_takeshi",
+    "bonuses": [
+      { "condition": "soup_is", "value": "tonkotsu", "points": 3, "label": "豚骨スープ" },
+      { "condition": "category_count_gte", "value": { "category": "meat", "count": 3 }, "points": 5, "label": "肉の具材が3つ以上" },
+      { "condition": "placed_count_eq", "value": 9, "points": 3, "label": "9マス全部埋まってる" }
+    ], "maxBonus": 11
+  },
+  {
+    "id": "sakura", "name": "OLのサクラ", "type": "映え重視",
+    "quote": "インスタ映えするラーメンがいいな♪", "spriteKey": "customer_sakura",
+    "bonuses": [
+      { "condition": "color_count_gte", "value": 5, "points": 5, "label": "5色以上使用" },
+      { "condition": "center_ingredient_is", "value": ["nitamago","naruto"], "points": 3, "label": "中央に煮たまごかナルト" },
+      { "condition": "symmetrical_blanks", "value": true, "points": 3, "label": "余白が左右対称" }
+    ], "maxBonus": 11
+  },
+  {
+    "id": "kouta", "name": "大学生のコウタ", "type": "ボリューム",
+    "quote": "腹減った〜！大盛りで！", "spriteKey": "customer_kouta",
+    "bonuses": [
+      { "condition": "placed_count_gte", "value": 8, "points": 4, "label": "8個以上配置" },
+      { "condition": "category_count_gte", "value": { "category": "meat", "count": 2 }, "points": 3, "label": "肉2つ以上" },
+      { "condition": "noodle_is", "value": "thick", "points": 2, "label": "太麺" }
+    ], "maxBonus": 9
+  },
+  {
+    "id": "miho", "name": "グルメブロガーのミホ", "type": "こだわり",
+    "quote": "ご当地の味、再現してみて！", "spriteKey": "customer_miho",
+    "bonuses": [
+      { "condition": "regional_set_complete", "value": true, "points": 8, "label": "ご当地セット完成" },
+      { "condition": "soup_noodle_max_compatibility", "value": true, "points": 3, "label": "スープ×麺が最高相性" }
+    ], "maxBonus": 11
+  },
+  {
+    "id": "mike", "name": "海外旅行者のマイク", "type": "好奇心",
+    "quote": "Unique ramen, please!", "spriteKey": "customer_mike",
+    "bonuses": [
+      { "condition": "unique_ingredients_gte", "value": 3, "points": 5, "label": "他全員と被らない具材3つ以上" },
+      { "condition": "category_count_gte", "value": { "category": "topping", "count": 4 }, "points": 4, "label": "トッピング4つ以上" }
+    ], "maxBonus": 9
+  },
+  {
+    "id": "yoshiko", "name": "おばあちゃんのヨシコ", "type": "あっさり",
+    "quote": "あっさりしたのがいいねぇ…", "spriteKey": "customer_yoshiko",
+    "bonuses": [
+      { "condition": "soup_is", "value": "shio", "points": 3, "label": "塩スープ" },
+      { "condition": "category_count_gte", "value": { "category": "vegetable", "count": 3 }, "points": 4, "label": "野菜カテゴリ3つ以上" },
+      { "condition": "not_has_ingredient", "value": "karamiso", "points": 2, "label": "辛味噌を使っていない" }
+    ], "maxBonus": 9
+  },
+  {
+    "id": "daisuke", "name": "ラーメン通のダイスケ", "type": "正統派",
+    "quote": "基本を極めた一杯が見たい。", "spriteKey": "customer_daisuke",
+    "bonuses": [
+      { "condition": "adjacency_pairs_gte", "value": 5, "points": 6, "label": "隣接ボーナス5ペア以上" },
+      { "condition": "soup_noodle_max_compatibility", "value": true, "points": 3, "label": "スープ×麺が最高相性" }
+    ], "maxBonus": 9
+  },
+  {
+    "id": "aoi", "name": "子連れママのアオイ", "type": "マイルド",
+    "quote": "子どもでも食べられるかな？", "spriteKey": "customer_aoi",
+    "bonuses": [
+      { "condition": "not_has_ingredient", "value": "ninniku", "points": 2, "label": "にんにく不使用" },
+      { "condition": "has_ingredient", "value": "nitamago", "points": 2, "label": "煮たまごを配置" },
+      { "condition": "category_count_gte", "value": { "category": "vegetable", "count": 2 }, "points": 3, "label": "野菜2つ以上" },
+      { "condition": "soup_in", "value": ["shio","shoyu"], "points": 2, "label": "塩か醤油スープ" }
+    ], "maxBonus": 9
+  },
+  {
+    "id": "shinji", "name": "深夜残業のシンジ", "type": "ガッツリ",
+    "quote": "今日は頑張ったから…ガツンとくるやつ！", "spriteKey": "customer_shinji",
+    "bonuses": [
+      { "condition": "soup_is", "value": "miso", "points": 3, "label": "味噌スープ" },
+      { "condition": "has_ingredient", "value": "ninniku", "points": 3, "label": "にんにくを配置" },
+      { "condition": "category_count_gte", "value": { "category": "meat", "count": 2 }, "points": 3, "label": "肉2つ以上" },
+      { "condition": "has_ingredient", "value": "karamiso", "points": 2, "label": "辛味噌を配置" }
+    ], "maxBonus": 11
+  },
+  {
+    "id": "rei", "name": "料理評論家のレイ", "type": "芸術点",
+    "quote": "美しくなければラーメンではない。", "spriteKey": "customer_rei",
+    "bonuses": [
+      { "condition": "color_count_gte", "value": 4, "points": 3, "label": "4色以上使用" },
+      { "condition": "has_blanks", "value": true, "points": 3, "label": "余白がある" },
+      { "condition": "adjacency_good_pairs_gte", "value": 3, "points": 3, "label": "良い隣接ペア3つ以上" },
+      { "condition": "adjacency_bad_pairs_eq", "value": 0, "points": 2, "label": "悪い隣接ペアが0" }
+    ], "maxBonus": 11
+  }
+]

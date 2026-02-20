@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>🍜 らーめん道 ～至高の一杯～</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Phaser 3 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.0/dist/phaser.min.js"></script>
+    <!-- Socket.io CDN（Phase 3以降で有効化） -->
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
+</head>
+<body>
+    <div id="game-container"></div>
+
+    <!-- ユーティリティ -->
+    <script src="js/utils/constants.js"></script>
+    <script src="js/utils/scoringEngine.js"></script>
+    <!-- <script src="js/utils/socketClient.js"></script> -->
+
+    <!-- シーン -->
+    <script src="js/scenes/BootScene.js"></script>
+    <script src="js/scenes/PreloadScene.js"></script>
+    <script src="js/scenes/TitleScene.js"></script>
+    <script src="js/scenes/CharSelectScene.js"></script>
+    <script src="js/scenes/SoupNoodleScene.js"></script>
+    <script src="js/scenes/DraftScene.js"></script>
+    <script src="js/scenes/PlacementScene.js"></script>
+    <script src="js/scenes/ScoringScene.js"></script>
+    <script src="js/scenes/CeremonyScene.js"></script>
+    <script src="js/scenes/ResultScene.js"></script>
+
+    <!-- メインエントリー（最後に読み込む） -->
+    <script src="js/main.js"></script>
+</body>
+</html>

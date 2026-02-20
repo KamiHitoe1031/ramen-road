@@ -1,0 +1,79 @@
+[
+  {
+    "id": "kenji", "name": "博多のケンジ", "region": "hakata",
+    "playstyle": "豚骨特化・正統派",
+    "quote": "ばりうまかラーメン、作っちゃるけん！",
+    "spriteKey": "char_kenji",
+    "bonuses": [
+      { "condition": "soup_is", "value": "tonkotsu", "points": 3, "label": "豚骨スープを選択" },
+      { "condition": "noodle_is", "value": "thin", "points": 2, "label": "細麺を選択" },
+      { "condition": "has_ingredient", "value": "benishoga", "points": 2, "label": "紅しょうがを配置" },
+      { "condition": "has_ingredient", "value": "ninniku", "points": 2, "label": "にんにくを配置" },
+      { "condition": "has_ingredient", "value": "shirogoma", "points": 2, "label": "白ごまを配置" }
+    ],
+    "maxBonus": 11
+  },
+  {
+    "id": "yuki", "name": "札幌のユキ", "region": "sapporo",
+    "playstyle": "味噌特化・セットボーナス型",
+    "quote": "バターコーンは正義だべさ！",
+    "spriteKey": "char_yuki",
+    "bonuses": [
+      { "condition": "soup_is", "value": "miso", "points": 3, "label": "味噌スープを選択" },
+      { "condition": "noodle_is", "value": "curly", "points": 2, "label": "ちぢれ麺を選択" },
+      { "condition": "has_both_ingredients", "value": ["butter","corn"], "points": 4, "label": "バターとコーンを両方配置" },
+      { "condition": "has_ingredient", "value": "moyashi", "points": 2, "label": "もやしを配置" }
+    ],
+    "maxBonus": 11
+  },
+  {
+    "id": "gen", "name": "東京の源さん", "region": "tokyo",
+    "playstyle": "引き算の美学・余白型",
+    "quote": "ラーメンは引き算だよ、若いの。",
+    "spriteKey": "char_gen",
+    "bonuses": [
+      { "condition": "soup_is", "value": "shoyu", "points": 3, "label": "醤油スープを選択" },
+      { "condition": "placed_count_lte", "value": 6, "points": 4, "label": "配置した具材が6個以下" },
+      { "condition": "symmetrical_blanks", "value": true, "points": 3, "label": "空きマスが左右対称" },
+      { "condition": "has_ingredient", "value": "nori", "points": 2, "label": "海苔を配置" }
+    ],
+    "maxBonus": 12
+  },
+  {
+    "id": "aya", "name": "創作系のアヤ", "region": null,
+    "playstyle": "彩り特化・独自路線",
+    "quote": "ラーメンはアートよ！",
+    "spriteKey": "char_aya",
+    "bonuses": [
+      { "condition": "color_count_gte", "value": 5, "points": 5, "label": "配置具材の色が5種類以上" },
+      { "condition": "unique_ingredients_gte", "value": 2, "points": 4, "label": "他の全員と被らない具材2つ以上" },
+      { "condition": "has_ingredient", "value": "naruto", "points": 2, "label": "ナルトを配置" }
+    ],
+    "maxBonus": 11
+  },
+  {
+    "id": "ryou", "name": "函館のリョウ", "region": "hakodate",
+    "playstyle": "塩・海鮮特化",
+    "quote": "海の幸を活かすのが俺の流儀だ。",
+    "spriteKey": "char_ryou",
+    "bonuses": [
+      { "condition": "soup_is", "value": "shio", "points": 3, "label": "塩スープを選択" },
+      { "condition": "noodle_is", "value": "thick", "points": 2, "label": "太麺を選択" },
+      { "condition": "category_count_gte", "value": { "category": "seafood", "count": 3 }, "points": 4, "label": "海鮮カテゴリ3つ以上配置" },
+      { "condition": "has_ingredient", "value": "ebi", "points": 2, "label": "えびを配置" }
+    ],
+    "maxBonus": 11
+  },
+  {
+    "id": "hana", "name": "屋台のハナ", "region": null,
+    "playstyle": "万能型・全部のせ",
+    "quote": "いっぱい食べな！元気が出るよ！",
+    "spriteKey": "char_hana",
+    "bonuses": [
+      { "condition": "placed_count_eq", "value": 9, "points": 5, "label": "9マス全部埋めた" },
+      { "condition": "category_count_gte", "value": { "category": "meat", "count": 2 }, "points": 3, "label": "肉カテゴリ2つ以上配置" },
+      { "condition": "adjacency_pairs_gte", "value": 4, "points": 3, "label": "隣接ボーナス4ペア以上達成" }
+    ],
+    "maxBonus": 11
+  }
+]

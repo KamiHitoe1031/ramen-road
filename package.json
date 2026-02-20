@@ -1,0 +1,22 @@
+{
+  "name": "ramen-road",
+  "version": "0.1.0",
+  "description": "らーめん道 ～至高の一杯～ ドラフト式対戦ボードゲーム",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "npx nodemon server/index.js",
+    "local": "npx http-server public -p 8080 -c-1",
+    "copy-data": "cp -r data/*.json public/assets/data/"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "socket.io": "^4.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

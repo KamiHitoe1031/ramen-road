@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"O:/AI_/Claudecode/ramen-road\" status)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

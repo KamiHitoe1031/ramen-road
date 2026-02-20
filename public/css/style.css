@@ -1,0 +1,31 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+}
+
+#game-container {
+    /* Phaserが自動でcanvasを挿入する */
+}
+
+/* ローディング中のフォールバック表示 */
+#game-container:empty::after {
+    content: '🍜 読み込み中...';
+    color: #f0e68c;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 800px;
+    height: 600px;
+}

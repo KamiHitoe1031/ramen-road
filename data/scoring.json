@@ -1,0 +1,42 @@
+{
+  "soupNoodleCompatibility": {
+    "tonkotsu": { "thin": 4, "curly": 1, "thick": 0 },
+    "shoyu":    { "thin": 2, "curly": 3, "thick": 1 },
+    "miso":     { "thin": 0, "curly": 4, "thick": 2 },
+    "shio":     { "thin": 1, "curly": 1, "thick": 3 }
+  },
+  "colorBonus": { "1": 0, "2": 1, "3": 3, "4": 5, "5": 8, "6": 8, "7": 8 },
+  "validColors": ["red","green","yellow","white","brown","black","pink"],
+  "adjacencyGoodPairs": {
+    "pointsPerPair": 2,
+    "pairs": [
+      ["chashu","negi"], ["chashu","nitamago"], ["butter","corn"],
+      ["nori","horenso"], ["benishoga","ninniku"], ["wakame","ebi"],
+      ["kakuni","nitamago"], ["moyashi","menma"]
+    ]
+  },
+  "adjacencyBadPairs": {
+    "pointsPerPair": -1,
+    "pairs": [
+      ["butter","benishoga"], ["ebi","ninniku"], ["wakame","corn"]
+    ]
+  },
+  "centerBonus": 1,
+  "duplicatePenalty": -1,
+  "regionalSets": {
+    "hakata":   { "name":"博多セット",  "soup":"tonkotsu", "noodle":"thin",  "pool":["benishoga","ninniku","shirogoma","chashu"], "min":3 },
+    "sapporo":  { "name":"札幌セット",  "soup":"miso",     "noodle":"curly", "pool":["butter","corn","moyashi","menma"],          "min":3 },
+    "tokyo":    { "name":"東京セット",  "soup":"shoyu",    "noodle":"curly", "pool":["nori","horenso","chashu","menma"],           "min":3 },
+    "hakodate": { "name":"函館セット",  "soup":"shio",     "noodle":"thick", "pool":["wakame","ebi","negi","naruto"],              "min":3 }
+  },
+  "symmetryPairs": [[[0,0],[2,0]], [[0,1],[2,1]], [[0,2],[2,2]]],
+  "draft": {
+    "3": { "handSize": 10, "picks": 9, "discards": 1 },
+    "4": { "handSize": 9,  "picks": 9, "discards": 0 }
+  },
+  "totalCards": 39,
+  "timers": {
+    "charSelect": 15, "soupSelect": 10, "noodleSelect": 10,
+    "draftTurn": 15, "placement": 60
+  }
+}

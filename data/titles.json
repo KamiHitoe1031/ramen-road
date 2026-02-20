@@ -1,0 +1,15 @@
+{
+  "comparative": [
+    { "id": "guzawasan_king", "name": "具沢山王", "emoji": "🏆", "condition": "most_placed_count", "points": 4, "announcement": "圧倒的ボリューム！" },
+    { "id": "moritsuke_master", "name": "盛り付けの匠", "emoji": "🎨", "condition": "highest_art_score", "points": 4, "announcement": "美しい…写真撮らせて！" },
+    { "id": "aji_king", "name": "味の支配者", "emoji": "🔥", "condition": "highest_taste_score", "points": 4, "announcement": "この味…完璧だ！" }
+  ],
+  "achievement": [
+    { "id": "regional_master", "name": "ご当地マスター", "emoji": "🍜", "condition": "regional_set_complete", "points": 5, "announcement": "完璧な{region}ラーメン！" },
+    { "id": "yohaku_beauty", "name": "余白の美学", "emoji": "✨", "condition": "symmetrical_blanks_with_min2", "points": 3, "announcement": "引き算の美しさ…" },
+    { "id": "zenbu_nose", "name": "全部のせ", "emoji": "👑", "condition": "placed_count_eq_9", "points": 3, "announcement": "豪快！全部のせ！" },
+    { "id": "rainbow", "name": "レインボー", "emoji": "🌈", "condition": "color_count_gte_6", "points": 3, "announcement": "まるで宝石箱や！" },
+    { "id": "only_one", "name": "オンリーワン", "emoji": "🃏", "condition": "unique_ingredients_gte_3", "points": 3, "announcement": "独創的な一杯…！" },
+    { "id": "perfect_satisfy", "name": "完全満足", "emoji": "🎯", "condition": "customer_all_conditions_met", "points": 4, "announcement": "まさに求めてた味！" }
+  ]
+}

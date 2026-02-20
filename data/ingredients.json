@@ -1,0 +1,20 @@
+[
+  { "id": "chashu", "name": "チャーシュー", "category": "meat", "colorTag": "brown", "regionTags": ["tokyo","hakata"], "cardCount": 3, "spriteKey": "ing_chashu" },
+  { "id": "kakuni", "name": "角煮", "category": "meat", "colorTag": "brown", "regionTags": [], "cardCount": 2, "spriteKey": "ing_kakuni" },
+  { "id": "tori_chashu", "name": "鶏チャーシュー", "category": "meat", "colorTag": "white", "regionTags": [], "cardCount": 2, "spriteKey": "ing_tori_chashu" },
+  { "id": "nitamago", "name": "煮たまご", "category": "egg", "colorTag": "yellow", "regionTags": [], "cardCount": 3, "spriteKey": "ing_nitamago" },
+  { "id": "negi", "name": "ネギ", "category": "vegetable", "colorTag": "green", "regionTags": ["hakodate"], "cardCount": 3, "spriteKey": "ing_negi" },
+  { "id": "menma", "name": "メンマ", "category": "vegetable", "colorTag": "brown", "regionTags": ["tokyo","sapporo"], "cardCount": 3, "spriteKey": "ing_menma" },
+  { "id": "moyashi", "name": "もやし", "category": "vegetable", "colorTag": "white", "regionTags": ["sapporo"], "cardCount": 2, "spriteKey": "ing_moyashi" },
+  { "id": "corn", "name": "コーン", "category": "vegetable", "colorTag": "yellow", "regionTags": ["sapporo"], "cardCount": 2, "spriteKey": "ing_corn" },
+  { "id": "horenso", "name": "ほうれん草", "category": "vegetable", "colorTag": "green", "regionTags": ["tokyo"], "cardCount": 2, "spriteKey": "ing_horenso" },
+  { "id": "nori", "name": "海苔", "category": "seafood", "colorTag": "black", "regionTags": ["tokyo"], "cardCount": 3, "spriteKey": "ing_nori" },
+  { "id": "wakame", "name": "わかめ", "category": "seafood", "colorTag": "green", "regionTags": ["hakodate"], "cardCount": 2, "spriteKey": "ing_wakame" },
+  { "id": "naruto", "name": "ナルト", "category": "seafood", "colorTag": "pink", "regionTags": [], "cardCount": 2, "spriteKey": "ing_naruto" },
+  { "id": "ebi", "name": "えび", "category": "seafood", "colorTag": "red", "regionTags": ["hakodate"], "cardCount": 2, "spriteKey": "ing_ebi" },
+  { "id": "benishoga", "name": "紅しょうが", "category": "topping", "colorTag": "red", "regionTags": ["hakata"], "cardCount": 2, "spriteKey": "ing_benishoga" },
+  { "id": "butter", "name": "バター", "category": "topping", "colorTag": "yellow", "regionTags": ["sapporo"], "cardCount": 2, "spriteKey": "ing_butter" },
+  { "id": "ninniku", "name": "にんにく", "category": "topping", "colorTag": "white", "regionTags": ["hakata"], "cardCount": 2, "spriteKey": "ing_ninniku" },
+  { "id": "karamiso", "name": "辛味噌", "category": "topping", "colorTag": "red", "regionTags": [], "cardCount": 2, "spriteKey": "ing_karamiso" },
+  { "id": "shirogoma", "name": "白ごま", "category": "topping", "colorTag": "white", "regionTags": ["hakata"], "cardCount": 2, "spriteKey": "ing_shirogoma" }
+]

@@ -1,0 +1,5 @@
+[
+  { "id": "thin", "name": "細麺", "regionTags": ["hakata"] },
+  { "id": "curly", "name": "ちぢれ麺", "regionTags": ["tokyo","sapporo"] },
+  { "id": "thick", "name": "太麺", "regionTags": ["hakodate"] }
+]
