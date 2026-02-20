@@ -14,6 +14,9 @@ class CharSelectScene extends Phaser.Scene {
         const { width, height } = this.cameras.main;
         const characters = this.registry.get('data_characters');
 
+        // 背景
+        this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
+
         this.add.text(width / 2, 30, '👨‍🍳 ラーメン屋を選べ！', {
             fontSize: GAME_CONFIG.FONT.HEADING_SIZE,
             color: GAME_CONFIG.COLORS.TEXT_PRIMARY,
@@ -33,8 +36,8 @@ class CharSelectScene extends Phaser.Scene {
                 .setInteractive({ useHandCursor: true })
                 .setStrokeStyle(2, 0x8b6914);
 
-            // プレースホルダーアイコン
-            this.add.text(cx, cy + 10, '👤', { fontSize: '40px' }).setOrigin(0.5);
+            // キャラクター画像
+            this.add.image(cx, cy + 10, char.spriteKey).setDisplaySize(80, 80);
 
             // 名前
             this.add.text(cx, cy + 55, char.name, {

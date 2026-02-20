@@ -28,7 +28,9 @@ class PlacementScene extends Phaser.Scene {
         ingredients.forEach(ing => { ingMap[ing.id] = ing; });
         this.ingMap = ingMap;
 
-        // --- 背景テキスト ---
+        // --- 背景 ---
+        this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
+
         this.add.text(width / 2, 20, '🎨 盛り付けタイム！', {
             fontSize: GAME_CONFIG.FONT.HEADING_SIZE,
             color: GAME_CONFIG.COLORS.TEXT_PRIMARY,
@@ -51,13 +53,11 @@ class PlacementScene extends Phaser.Scene {
             loop: true,
         });
 
-        // --- スープ丼プレースホルダー ---
+        // --- スープ丼画像 ---
         const soupId = this.registry.get(REGISTRY.SELECTED_SOUP);
         const soupData = this.registry.get('data_soups').find(s => s.id === soupId);
-        const bowlColor = Phaser.Display.Color.HexStringToColor(soupData.color).color;
 
-        this.add.circle(width / 2, 230, 130, bowlColor, 0.3);
-        this.add.circle(width / 2, 230, 130).setStrokeStyle(3, bowlColor);
+        this.add.image(width / 2, 230, soupData.spriteKey).setDisplaySize(270, 270).setAlpha(0.7);
 
         // --- 3×3 グリッド ---
         const cellSize = GAME_CONFIG.GRID_CELL_SIZE;
@@ -113,7 +113,9 @@ class PlacementScene extends Phaser.Scene {
         const activeCustomers = customerIds.map(id => allCustomers.find(c => c.id === id));
 
         activeCustomers.forEach((cust, i) => {
-            this.add.text(width - 10, 60 + i * 50, `${cust.name}\n${cust.type}`, {
+            const custY = 60 + i * 60;
+            this.add.image(width - 120, custY + 15, cust.spriteKey).setDisplaySize(36, 36);
+            this.add.text(width - 10, custY, `${cust.name}\n${cust.type}`, {
                 fontSize: '12px',
                 color: '#cccccc',
                 align: 'right',
@@ -145,11 +147,9 @@ class PlacementScene extends Phaser.Scene {
             const colorBar = this.add.rectangle(0, -cardH / 2 + 8, cardW - 4, 14, colorHex);
             container.add(colorBar);
 
-            // カテゴリ絵文字
-            const emoji = this.add.text(0, -8, GAME_CONFIG.CATEGORY_EMOJI[ing.category] || '?', {
-                fontSize: '22px',
-            }).setOrigin(0.5);
-            container.add(emoji);
+            // 具材画像
+            const ingImg = this.add.image(0, -8, ing.spriteKey).setDisplaySize(40, 40);
+            container.add(ingImg);
 
             // 具材名
             const nameText = this.add.text(0, 18, ing.name, {

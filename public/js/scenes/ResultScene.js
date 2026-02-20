@@ -9,7 +9,12 @@ class ResultScene extends Phaser.Scene {
     create() {
         const { width, height } = this.cameras.main;
         const finalScores = this.registry.get('finalScores');
+        const allPlayers = this.registry.get(REGISTRY.ALL_PLAYERS);
+        const characters = this.registry.get('data_characters');
         const medals = ['🥇', '🥈', '🥉'];
+
+        // 背景
+        this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
 
         this.add.text(width / 2, 40, '🍜 結果発表！', {
             fontSize: GAME_CONFIG.FONT.TITLE_SIZE,
@@ -28,8 +33,17 @@ class ResultScene extends Phaser.Scene {
                     .setStrokeStyle(2, 0xff6b35, 0.5);
             }
 
+            // キャラアイコン
+            const player = allPlayers.find(p => p.playerId === score.playerId);
+            if (player) {
+                const charData = characters.find(c => c.id === player.characterId);
+                if (charData) {
+                    this.add.image(55, y + 15, charData.spriteKey).setDisplaySize(48, 48);
+                }
+            }
+
             // 順位
-            this.add.text(80, y, `${medal} ${score.rank}位`, {
+            this.add.text(90, y, `${medal} ${score.rank}位`, {
                 fontSize: '28px',
                 color: isMe ? GAME_CONFIG.COLORS.TEXT_SCORE : GAME_CONFIG.COLORS.TEXT_PRIMARY,
             }).setOrigin(0, 0);

@@ -10,6 +10,9 @@ class TitleScene extends Phaser.Scene {
     create() {
         const { width, height } = this.cameras.main;
 
+        // 背景
+        this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.4);
+
         // タイトル
         this.add.text(width / 2, 120, '🍜', { fontSize: '72px' }).setOrigin(0.5);
         this.add.text(width / 2, 200, 'らーめん道', {

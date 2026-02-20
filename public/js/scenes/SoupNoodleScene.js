@@ -23,6 +23,9 @@ class SoupNoodleScene extends Phaser.Scene {
         // 前のUIをクリア
         this.children.removeAll();
 
+        // 背景
+        this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
+
         this.add.text(width / 2, 60, '🍲 スープを選べ！', {
             fontSize: GAME_CONFIG.FONT.HEADING_SIZE,
             color: GAME_CONFIG.COLORS.TEXT_PRIMARY,
@@ -32,10 +35,10 @@ class SoupNoodleScene extends Phaser.Scene {
             const x = 120 + i * 160;
             const y = 280;
 
-            // スープカラープレースホルダー
-            const circle = this.add.circle(x, y - 30, 50, Phaser.Display.Color.HexStringToColor(soup.color).color)
-                .setInteractive({ useHandCursor: true })
-                .setStrokeStyle(3, 0xffffff);
+            // 丼画像
+            const bowlImg = this.add.image(x, y - 30, soup.spriteKey)
+                .setDisplaySize(100, 100)
+                .setInteractive({ useHandCursor: true });
 
             this.add.text(x, y + 40, soup.name, {
                 fontSize: '20px',
@@ -49,13 +52,13 @@ class SoupNoodleScene extends Phaser.Scene {
                 align: 'center',
             }).setOrigin(0.5);
 
-            circle.on('pointerdown', () => {
+            bowlImg.on('pointerdown', () => {
                 this.registry.set(REGISTRY.SELECTED_SOUP, soup.id);
                 this.showNoodleSelect();
             });
 
-            circle.on('pointerover', () => circle.setStrokeStyle(3, 0xff6b35));
-            circle.on('pointerout', () => circle.setStrokeStyle(3, 0xffffff));
+            bowlImg.on('pointerover', () => bowlImg.setScale(1.15));
+            bowlImg.on('pointerout', () => bowlImg.setScale(1));
         });
     }
 
@@ -64,6 +67,9 @@ class SoupNoodleScene extends Phaser.Scene {
         const noodles = this.registry.get('data_noodles');
 
         this.children.removeAll();
+
+        // 背景
+        this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
 
         this.add.text(width / 2, 60, '🍜 麺を選べ！', {
             fontSize: GAME_CONFIG.FONT.HEADING_SIZE,
