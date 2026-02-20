@@ -87,6 +87,8 @@ class CeremonyScene extends Phaser.Scene {
         this.tweens.add({ targets: winnerText, alpha: 1, duration: 500, delay: 300, ease: 'Power2' });
         this.tweens.add({ targets: announceText, alpha: 1, duration: 500, delay: 500, ease: 'Power2' });
 
+        console.log(`[Ceremony] Title: ${title.name} → ${winnerNames} +${title.points}pts`);
+
         // ボーナス加算
         title.winners.forEach(pid => {
             this.titleBonuses[pid] = (this.titleBonuses[pid] || 0) + title.points;

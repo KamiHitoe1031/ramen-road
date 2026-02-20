@@ -111,6 +111,8 @@ class PreloadScene extends Phaser.Scene {
     }
 
     create() {
+        console.log('[PreloadScene] All assets loaded');
+
         // JSONデータをレジストリ経由で共有（他シーンからアクセスしやすいように）
         this.registry.set('data_ingredients', this.cache.json.get('ingredients'));
         this.registry.set('data_soups', this.cache.json.get('soups'));

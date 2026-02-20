@@ -53,6 +53,7 @@ class SoupNoodleScene extends Phaser.Scene {
             }).setOrigin(0.5);
 
             bowlImg.on('pointerdown', () => {
+                console.log('[SoupNoodle] Soup selected:', soup.id, soup.name);
                 this.registry.set(REGISTRY.SELECTED_SOUP, soup.id);
                 this.showNoodleSelect();
             });
@@ -114,6 +115,7 @@ class SoupNoodleScene extends Phaser.Scene {
             }).setOrigin(0.5);
 
             card.on('pointerdown', () => {
+                console.log('[SoupNoodle] Noodle selected:', noodle.id, noodle.name, 'compat:', compat);
                 this.registry.set(REGISTRY.SELECTED_NOODLE, noodle.id);
                 this.dealHand();
             });
@@ -140,6 +142,8 @@ class SoupNoodleScene extends Phaser.Scene {
         const hand = pool.slice(0, 9);
 
         this.registry.set(REGISTRY.PLAYER_HAND, hand);
+
+        console.log('[SoupNoodle] Hand dealt:', hand);
 
         // Phase 1: ドラフトスキップ、直接盛り付けへ
         this.scene.start(SCENES.PLACEMENT);

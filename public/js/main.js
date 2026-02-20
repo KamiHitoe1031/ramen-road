@@ -26,3 +26,9 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+
+console.log('[Game] Phaser initialized', {
+    version: Phaser.VERSION,
+    renderer: 'AUTO',
+    size: `${GAME_CONFIG.WIDTH}x${GAME_CONFIG.HEIGHT}`
+});

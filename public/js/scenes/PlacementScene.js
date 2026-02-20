@@ -258,6 +258,7 @@ class PlacementScene extends Phaser.Scene {
     }
 
     submitPlacement() {
+        console.log('[Placement] Grid submitted:', JSON.stringify(this.grid));
         this.registry.set(REGISTRY.PLAYER_GRID, this.grid);
 
         // Phase 1: AI分のデータを自動生成

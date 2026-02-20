@@ -34,6 +34,11 @@ class ScoringScene extends Phaser.Scene {
             return { playerId: p.playerId, name: p.name, state: p, scores };
         });
 
+        // ログ出力
+        this.allResults.forEach(r => {
+            console.log(`[Scoring] ${r.name}: L1=${r.scores.layer1.subtotal} L2=${r.scores.layer2.subtotal} L3=${r.scores.layer3.subtotal} Total=${r.scores.baseTotal}`);
+        });
+
         // 自分の結果を表示
         const myResult = this.allResults.find(r => r.playerId === 'player');
         const s = myResult.scores;
