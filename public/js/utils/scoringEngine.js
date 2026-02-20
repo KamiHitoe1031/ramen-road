@@ -65,14 +65,14 @@ class ScoringEngine {
     }
 
     calcSoupNoodleScore(soup, noodle) {
-        const table = this.scoring.soupNoodleCompatibility.table;
-        return (table[soup] && table[soup][noodle]) || 0;
+        const compat = this.scoring.soupNoodleCompatibility;
+        return (compat[soup] && compat[soup][noodle]) || 0;
     }
 
     calcColorBonus(placed) {
         const colors = new Set(placed.map(id => this.ingredientMap[id]?.colorTag).filter(Boolean));
         const count = colors.size;
-        return this.scoring.colorBonus.table[String(count)] || 0;
+        return this.scoring.colorBonus[String(count)] || 0;
     }
 
     calcAdjacencyGood(grid) {
@@ -108,7 +108,7 @@ class ScoringEngine {
     }
 
     calcCenterBonus(grid) {
-        return grid[1][1] !== null ? this.scoring.centerBonus.points : 0;
+        return grid[1][1] !== null ? this.scoring.centerBonus : 0;
     }
 
     calcDuplicatePenalty(placed) {
@@ -118,7 +118,7 @@ class ScoringEngine {
         let penalty = 0;
         for (const id in counts) {
             if (counts[id] > 1) {
-                penalty += (counts[id] - 1) * this.scoring.duplicatePenalty.pointsPerDuplicate;
+                penalty += (counts[id] - 1) * this.scoring.duplicatePenalty;
             }
         }
         return penalty;
@@ -365,7 +365,10 @@ class ScoringEngine {
 
             case 'soup_noodle_max_compatibility': {
                 const score = this.calcSoupNoodleScore(playerState.soup, playerState.noodle);
-                return score === this.scoring.soupNoodleCompatibility.maxPoints;
+                // 相性テーブルの最大値を算出
+                const compat = this.scoring.soupNoodleCompatibility;
+                const maxPts = Math.max(...Object.values(compat).flatMap(row => Object.values(row)));
+                return score === maxPts;
             }
 
             default:
@@ -411,7 +414,7 @@ class ScoringEngine {
 
     /** 左右対称チェック */
     checkSymmetry(grid) {
-        const symPairs = this.scoring.symmetryCheck.pairs;
+        const symPairs = this.scoring.symmetryPairs;
         let hasBlank = false;
 
         for (const [left, right] of symPairs) {
@@ -426,16 +429,16 @@ class ScoringEngine {
 
     /** ご当地セット判定 */
     checkRegionalSet(playerState) {
-        const sets = this.scoring.regionalSets.sets;
+        const sets = this.scoring.regionalSets;
         const placed = this.getPlacedIngredients(playerState.grid);
 
         for (const regionId in sets) {
             const set = sets[regionId];
-            if (playerState.soup !== set.requiredSoup) continue;
-            if (playerState.noodle !== set.requiredNoodle) continue;
+            if (playerState.soup !== set.soup) continue;
+            if (playerState.noodle !== set.noodle) continue;
 
-            const matchCount = set.ingredientPool.filter(id => placed.includes(id)).length;
-            if (matchCount >= set.minIngredients) return regionId;
+            const matchCount = set.pool.filter(id => placed.includes(id)).length;
+            if (matchCount >= set.min) return regionId;
         }
 
         return false;

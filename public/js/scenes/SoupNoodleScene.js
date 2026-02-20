@@ -101,7 +101,7 @@ class SoupNoodleScene extends Phaser.Scene {
 
             // スープ×麺相性プレビュー
             const scoring = this.registry.get('data_scoring');
-            const compat = scoring.soupNoodleCompatibility.table[this.registry.get(REGISTRY.SELECTED_SOUP)][noodle.id];
+            const compat = scoring.soupNoodleCompatibility[this.registry.get(REGISTRY.SELECTED_SOUP)][noodle.id];
             this.add.text(x, y + 75, `相性: +${compat}点`, {
                 fontSize: '14px',
                 color: compat >= 3 ? '#00ff00' : compat >= 2 ? '#ffff00' : '#ff6666',

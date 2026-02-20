@@ -1,6 +1,6 @@
 [
-  { "id": "tonkotsu", "name": "豚骨", "color": "#F5E6CA", "region": "hakata", "spriteKey": "bowl_tonkotsu" },
-  { "id": "shoyu", "name": "醤油", "color": "#8B6914", "region": "tokyo", "spriteKey": "bowl_shoyu" },
-  { "id": "miso", "name": "味噌", "color": "#D4A017", "region": "sapporo", "spriteKey": "bowl_miso" },
-  { "id": "shio", "name": "塩", "color": "#E8E4C9", "region": "hakodate", "spriteKey": "bowl_shio" }
+  { "id": "tonkotsu", "name": "豚骨", "description": "濃厚でクリーミーな博多の味", "color": "#F5E6CA", "region": "hakata", "spriteKey": "bowl_tonkotsu" },
+  { "id": "shoyu", "name": "醤油", "description": "香ばしい醤油が香る東京の定番", "color": "#8B6914", "region": "tokyo", "spriteKey": "bowl_shoyu" },
+  { "id": "miso", "name": "味噌", "description": "コク深い味噌が決め手の札幌流", "color": "#D4A017", "region": "sapporo", "spriteKey": "bowl_miso" },
+  { "id": "shio", "name": "塩", "description": "あっさり澄んだ函館の塩味", "color": "#E8E4C9", "region": "hakodate", "spriteKey": "bowl_shio" }
 ]

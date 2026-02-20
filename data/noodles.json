@@ -1,5 +1,5 @@
 [
-  { "id": "thin", "name": "細麺", "regionTags": ["hakata"] },
-  { "id": "curly", "name": "ちぢれ麺", "regionTags": ["tokyo","sapporo"] },
-  { "id": "thick", "name": "太麺", "regionTags": ["hakodate"] }
+  { "id": "thin", "name": "細麺", "description": "スープがよく絡むストレート細麺", "regionTags": ["hakata"] },
+  { "id": "curly", "name": "ちぢれ麺", "description": "もちもちの縮れがスープを掴む", "regionTags": ["tokyo","sapporo"] },
+  { "id": "thick", "name": "太麺", "description": "食べ応え抜群の極太ストレート", "regionTags": ["hakodate"] }
 ]
