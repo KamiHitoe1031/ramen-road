@@ -8,6 +8,8 @@ class CharSelectScene extends Phaser.Scene {
 
     init() {
         this.selectedCharId = null;
+        this.timer = GAME_CONFIG.TIMER_CHAR_SELECT;
+        this.decided = false;
     }
 
     create() {
@@ -21,6 +23,31 @@ class CharSelectScene extends Phaser.Scene {
             fontSize: GAME_CONFIG.FONT.HEADING_SIZE,
             color: GAME_CONFIG.COLORS.TEXT_PRIMARY,
         }).setOrigin(0.5);
+
+        // タイマー表示
+        this.timerText = this.add.text(width - 20, 20, `${this.timer}秒`, {
+            fontSize: '22px',
+            color: GAME_CONFIG.COLORS.TEXT_ACCENT,
+        }).setOrigin(1, 0);
+
+        this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                if (this.decided) return;
+                this.timer--;
+                this.timerText.setText(`${this.timer}秒`);
+                if (this.timer <= 5) {
+                    this.timerText.setColor('#ff0000');
+                    this.sound.play('sfx_timer_warn');
+                }
+                if (this.timer <= 0) {
+                    // タイムアウト: ランダム選択
+                    const randomChar = Phaser.Utils.Array.GetRandom(characters);
+                    this.selectCharacter(randomChar.id);
+                }
+            },
+            loop: true,
+        });
 
         // キャラカードを2行3列で配置
         const cols = 3, startX = 140, startY = 90, gapX = 220, gapY = 220;
@@ -63,21 +90,28 @@ class CharSelectScene extends Phaser.Scene {
 
             // 選択
             card.on('pointerdown', () => {
+                if (this.decided) return;
                 this.sound.play('sfx_click');
-                console.log('[CharSelect] Selected:', char.id, char.name);
-                this.selectedCharId = char.id;
-                this.registry.set(REGISTRY.SELECTED_CHARACTER, char.id);
-
-                // ランダムにお客さんを2人選出
-                const customers = this.registry.get('data_customers');
-                const shuffled = Phaser.Utils.Array.Shuffle([...customers]);
-                this.registry.set(REGISTRY.ACTIVE_CUSTOMERS, [shuffled[0].id, shuffled[1].id]);
-
-                this.scene.start(SCENES.SOUP_NOODLE);
+                this.selectCharacter(char.id);
             });
 
             card.on('pointerover', () => card.setFillStyle(0x4a3a2a));
             card.on('pointerout', () => card.setFillStyle(0x3a2a1a));
         });
+    }
+
+    selectCharacter(charId) {
+        if (this.decided) return;
+        this.decided = true;
+
+        console.log('[CharSelect] Selected:', charId);
+        this.registry.set(REGISTRY.SELECTED_CHARACTER, charId);
+
+        // ランダムにお客さんを2人選出
+        const customers = this.registry.get('data_customers');
+        const shuffled = Phaser.Utils.Array.Shuffle([...customers]);
+        this.registry.set(REGISTRY.ACTIVE_CUSTOMERS, [shuffled[0].id, shuffled[1].id]);
+
+        this.scene.start(SCENES.SOUP_NOODLE);
     }
 }

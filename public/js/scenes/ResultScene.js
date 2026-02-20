@@ -1,5 +1,6 @@
 /**
  * ResultScene - 最終結果とランキング表示
+ * スコアカウントアップ演出 + 1位confetti
  */
 class ResultScene extends Phaser.Scene {
     constructor() {
@@ -24,7 +25,7 @@ class ResultScene extends Phaser.Scene {
             color: GAME_CONFIG.COLORS.TEXT_SCORE,
         }).setOrigin(0.5);
 
-        // ランキング表示
+        // ランキング表示（スコアはカウントアップ）
         finalScores.forEach((score, i) => {
             const y = 120 + i * 90;
             const medal = medals[i] || '  ';
@@ -71,12 +72,32 @@ class ResultScene extends Phaser.Scene {
                 });
             }
 
-            // 合計
-            this.add.text(width - 80, y + 10, `${score.totalScore}点`, {
+            // 合計スコア（カウントアップ演出）
+            const scoreText = this.add.text(width - 80, y + 10, '0点', {
                 fontSize: '30px',
                 color: isMe ? GAME_CONFIG.COLORS.TEXT_SCORE : GAME_CONFIG.COLORS.TEXT_PRIMARY,
                 fontStyle: 'bold',
             }).setOrigin(1, 0);
+
+            // カウントアップTween
+            const counter = { val: 0 };
+            this.tweens.add({
+                targets: counter,
+                val: score.totalScore,
+                duration: 1200,
+                delay: i * 300,
+                ease: 'Power2',
+                onUpdate: () => {
+                    scoreText.setText(`${Math.round(counter.val)}点`);
+                },
+                onComplete: () => {
+                    scoreText.setText(`${score.totalScore}点`);
+                    // 1位完了時にconfetti開始
+                    if (i === 0) {
+                        this.startConfetti();
+                    }
+                },
+            });
         });
 
         // --- ボタン ---
@@ -103,5 +124,34 @@ class ResultScene extends Phaser.Scene {
             this.sound.play('sfx_click');
             this.scene.start(SCENES.TITLE);
         });
+    }
+
+    /** 紙吹雪パーティクル */
+    startConfetti() {
+        const { width } = this.cameras.main;
+        const colors = [0xff6b35, 0xffd700, 0xe74c3c, 0x27ae60, 0x3498db, 0xe91e8c];
+
+        // 紙吹雪を30個生成
+        for (let i = 0; i < 30; i++) {
+            const x = Phaser.Math.Between(50, width - 50);
+            const color = Phaser.Utils.Array.GetRandom(colors);
+            const size = Phaser.Math.Between(4, 10);
+
+            const piece = this.add.rectangle(x, -20, size, size * 1.5, color)
+                .setAngle(Phaser.Math.Between(0, 360))
+                .setDepth(200);
+
+            this.tweens.add({
+                targets: piece,
+                y: Phaser.Math.Between(100, 500),
+                x: x + Phaser.Math.Between(-80, 80),
+                angle: Phaser.Math.Between(180, 720),
+                alpha: 0,
+                duration: Phaser.Math.Between(1500, 3000),
+                delay: Phaser.Math.Between(0, 500),
+                ease: 'Quad.easeOut',
+                onComplete: () => piece.destroy(),
+            });
+        }
     }
 }

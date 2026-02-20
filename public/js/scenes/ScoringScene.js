@@ -88,15 +88,28 @@ class ScoringScene extends Phaser.Scene {
         }
         y = this.drawSection(leftX, y + sectionGap, '【お客さん評価】', l3Lines, `小計: ${s.layer3.subtotal}点`, titleSize, fontSize, lineH);
 
-        // スコアティック音
-        this.sound.play('sfx_score_tick');
-
-        // 基本合計
-        this.add.text(width / 2, y + 14, `基本合計: ${s.baseTotal}点`, {
+        // 基本合計（カウントアップ演出）
+        const totalText = this.add.text(width / 2, y + 14, '基本合計: 0点', {
             fontSize: '22px',
             color: GAME_CONFIG.COLORS.TEXT_SCORE,
             fontStyle: 'bold',
         }).setOrigin(0.5);
+
+        const counter = { val: 0 };
+        this.tweens.add({
+            targets: counter,
+            val: s.baseTotal,
+            duration: 1000,
+            delay: 300,
+            ease: 'Power2',
+            onStart: () => this.sound.play('sfx_score_tick'),
+            onUpdate: () => {
+                totalText.setText(`基本合計: ${Math.round(counter.val)}点`);
+            },
+            onComplete: () => {
+                totalText.setText(`基本合計: ${s.baseTotal}点`);
+            },
+        });
 
         // 称号セレモニーへボタン
         const nextBtn = this.add.rectangle(width / 2, height - 30, 260, 44, GAME_CONFIG.COLORS.BTN_PRIMARY)

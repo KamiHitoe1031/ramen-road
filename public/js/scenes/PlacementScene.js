@@ -202,14 +202,25 @@ class PlacementScene extends Phaser.Scene {
 
                         // グリッドに配置
                         this.grid[row][col] = ingId;
-                        gameObject.x = cell.x;
-                        gameObject.y = cell.y;
                         gameObject.setData('placed', true);
-                        this.sound.play('sfx_place');
                         gameObject.setData('gridRow', row);
                         gameObject.setData('gridCol', col);
                         cell.ingredientSprite = gameObject;
                         placed = true;
+
+                        // ポトン落下アニメーション
+                        gameObject.x = cell.x;
+                        gameObject.y = cell.y - 30;
+                        gameObject.setScale(1.1);
+                        this.tweens.add({
+                            targets: gameObject,
+                            y: cell.y,
+                            scaleX: 1,
+                            scaleY: 1,
+                            duration: 200,
+                            ease: 'Bounce.easeOut',
+                        });
+                        this.sound.play('sfx_place');
                         break;
                     }
                 }
@@ -272,21 +283,30 @@ class PlacementScene extends Phaser.Scene {
         console.log('[Placement] Grid submitted:', JSON.stringify(this.grid));
         this.registry.set(REGISTRY.PLAYER_GRID, this.grid);
 
-        // Phase 1: AI分のデータを自動生成
-        this.generateAIPlayers();
-
-        this.scene.start(SCENES.SCORING);
+        // 完成演出: グリッド全体をフラッシュ
+        const { width, height } = this.cameras.main;
+        const flash = this.add.rectangle(width / 2, 230, 300, 300, 0xffd700, 0.3).setDepth(50);
+        this.tweens.add({
+            targets: flash,
+            alpha: 0,
+            duration: 600,
+            onComplete: () => {
+                flash.destroy();
+                this.generateAIPlayers();
+                this.scene.start(SCENES.SCORING);
+            },
+        });
     }
 
     generateAIPlayers() {
         const characters = this.registry.get('data_characters');
         const ingredients = this.registry.get('data_ingredients');
         const selectedChar = this.registry.get(REGISTRY.SELECTED_CHARACTER);
+        const aiDraftPicks = this.registry.get('aiDraftPicks'); // ドラフトで取得済み
 
-        // AIキャラ（プレイヤーが選んでないキャラから2人）
+        // AIキャラ（プレイヤーが選んでないキャラから）
         const availableChars = characters.filter(c => c.id !== selectedChar);
-        Phaser.Utils.Array.Shuffle(availableChars);
-        const aiChars = availableChars.slice(0, 2);
+        const aiChars = availableChars.slice(0, (this.registry.get(REGISTRY.PLAYER_COUNT) || 3) - 1);
 
         const soups = ['tonkotsu', 'shoyu', 'miso', 'shio'];
         const noodles = ['thin', 'curly', 'thick'];
@@ -302,17 +322,22 @@ class PlacementScene extends Phaser.Scene {
             },
         ];
 
-        // AI2体分のランダム盛り付け
         aiChars.forEach((char, idx) => {
-            let pool = [];
-            ingredients.forEach(ing => {
-                for (let i = 0; i < ing.cardCount; i++) pool.push(ing.id);
-            });
-            Phaser.Utils.Array.Shuffle(pool);
-            const aiHand = pool.slice(0, 9);
+            // ドラフトの手札があればそれを使い、なければランダム
+            let aiHand;
+            if (aiDraftPicks && aiDraftPicks[idx]) {
+                aiHand = [...aiDraftPicks[idx]];
+            } else {
+                let pool = [];
+                ingredients.forEach(ing => {
+                    for (let i = 0; i < ing.cardCount; i++) pool.push(ing.id);
+                });
+                Phaser.Utils.Array.Shuffle(pool);
+                aiHand = pool.slice(0, 9);
+            }
 
-            // ランダムに5-9個配置
-            const placeCount = Phaser.Math.Between(5, 9);
+            // AIの盛り付け: 7-9個配置（ドラフト経由ならより多く置く）
+            const placeCount = Phaser.Math.Between(7, Math.min(9, aiHand.length));
             const aiGrid = [[null, null, null], [null, null, null], [null, null, null]];
             const positions = Phaser.Utils.Array.Shuffle([
                 [0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[0,2],[1,2],[2,2],
