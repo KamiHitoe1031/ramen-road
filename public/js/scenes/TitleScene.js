@@ -57,7 +57,10 @@ class TitleScene extends Phaser.Scene {
 
         btn.on('pointerover', () => btn.setFillStyle(GAME_CONFIG.COLORS.BTN_HOVER));
         btn.on('pointerout', () => btn.setFillStyle(GAME_CONFIG.COLORS.BTN_PRIMARY));
-        btn.on('pointerdown', callback);
+        btn.on('pointerdown', () => {
+            this.sound.play('sfx_click');
+            callback();
+        });
 
         return btn;
     }

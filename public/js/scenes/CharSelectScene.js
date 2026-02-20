@@ -63,6 +63,7 @@ class CharSelectScene extends Phaser.Scene {
 
             // 選択
             card.on('pointerdown', () => {
+                this.sound.play('sfx_click');
                 console.log('[CharSelect] Selected:', char.id, char.name);
                 this.selectedCharId = char.id;
                 this.registry.set(REGISTRY.SELECTED_CHARACTER, char.id);

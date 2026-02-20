@@ -142,6 +142,9 @@ class CeremonyScene extends Phaser.Scene {
             this.tweens.add({ targets: announceText, alpha: 1, duration: 400, delay: 600 });
         }
 
+        // 称号発表音
+        this.sound.play('sfx_title_reveal');
+
         // フェードイン
         this.tweens.add({ targets: titleText, alpha: 1, duration: 500, ease: 'Power2' });
         this.tweens.add({ targets: pointsText, alpha: 1, duration: 500, delay: 200 });

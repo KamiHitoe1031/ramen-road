@@ -53,6 +53,7 @@ class SoupNoodleScene extends Phaser.Scene {
             }).setOrigin(0.5);
 
             bowlImg.on('pointerdown', () => {
+                this.sound.play('sfx_click');
                 console.log('[SoupNoodle] Soup selected:', soup.id, soup.name);
                 this.registry.set(REGISTRY.SELECTED_SOUP, soup.id);
                 this.showNoodleSelect();
@@ -115,6 +116,7 @@ class SoupNoodleScene extends Phaser.Scene {
             }).setOrigin(0.5);
 
             card.on('pointerdown', () => {
+                this.sound.play('sfx_click');
                 console.log('[SoupNoodle] Noodle selected:', noodle.id, noodle.name, 'compat:', compat);
                 this.registry.set(REGISTRY.SELECTED_NOODLE, noodle.id);
                 this.dealHand();

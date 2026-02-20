@@ -48,7 +48,10 @@ class PlacementScene extends Phaser.Scene {
             callback: () => {
                 this.timer--;
                 this.timerText.setText(`${this.timer}秒`);
-                if (this.timer <= 5) this.timerText.setColor('#ff0000');
+                if (this.timer <= 5) {
+                    this.timerText.setColor('#ff0000');
+                    this.sound.play('sfx_timer_warn');
+                }
                 if (this.timer <= 0) this.submitPlacement();
             },
             loop: true,
@@ -98,7 +101,10 @@ class PlacementScene extends Phaser.Scene {
             color: '#ffffff',
         }).setOrigin(0.5);
 
-        doneBtn.on('pointerdown', () => this.submitPlacement());
+        doneBtn.on('pointerdown', () => {
+            this.sound.play('sfx_click');
+            this.submitPlacement();
+        });
 
         // --- リアルタイムスコアプレビュー ---
         this.scorePreview = this.add.text(20, 60, '', {
@@ -199,6 +205,7 @@ class PlacementScene extends Phaser.Scene {
                         gameObject.x = cell.x;
                         gameObject.y = cell.y;
                         gameObject.setData('placed', true);
+                        this.sound.play('sfx_place');
                         gameObject.setData('gridRow', row);
                         gameObject.setData('gridCol', col);
                         cell.ingredientSprite = gameObject;
@@ -215,6 +222,7 @@ class PlacementScene extends Phaser.Scene {
                 gameObject.x = gameObject.getData('originalX');
                 gameObject.y = gameObject.getData('originalY');
                 gameObject.setData('placed', false);
+                this.sound.play('sfx_remove');
             }
 
             this.updateScorePreview();

@@ -16,6 +16,9 @@ class ResultScene extends Phaser.Scene {
         // 背景
         this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
 
+        // 勝者発表音
+        this.sound.play('sfx_winner');
+
         this.add.text(width / 2, 40, '🍜 結果発表！', {
             fontSize: GAME_CONFIG.FONT.TITLE_SIZE,
             color: GAME_CONFIG.COLORS.TEXT_SCORE,
@@ -85,7 +88,10 @@ class ResultScene extends Phaser.Scene {
         this.add.text(width / 2 - 120, btnY, '🍜 もう一杯！', {
             fontSize: '18px', color: '#ffffff',
         }).setOrigin(0.5);
-        retryBtn.on('pointerdown', () => this.scene.start(SCENES.CHAR_SELECT));
+        retryBtn.on('pointerdown', () => {
+            this.sound.play('sfx_click');
+            this.scene.start(SCENES.CHAR_SELECT);
+        });
 
         // タイトルへ
         const titleBtn = this.add.rectangle(width / 2 + 120, btnY, 200, 50, 0x555555)
@@ -93,6 +99,9 @@ class ResultScene extends Phaser.Scene {
         this.add.text(width / 2 + 120, btnY, '🏠 タイトルへ', {
             fontSize: '18px', color: '#ffffff',
         }).setOrigin(0.5);
-        titleBtn.on('pointerdown', () => this.scene.start(SCENES.TITLE));
+        titleBtn.on('pointerdown', () => {
+            this.sound.play('sfx_click');
+            this.scene.start(SCENES.TITLE);
+        });
     }
 }

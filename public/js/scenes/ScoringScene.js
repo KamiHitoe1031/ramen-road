@@ -88,6 +88,9 @@ class ScoringScene extends Phaser.Scene {
         }
         y = this.drawSection(leftX, y + sectionGap, '【お客さん評価】', l3Lines, `小計: ${s.layer3.subtotal}点`, titleSize, fontSize, lineH);
 
+        // スコアティック音
+        this.sound.play('sfx_score_tick');
+
         // 基本合計
         this.add.text(width / 2, y + 14, `基本合計: ${s.baseTotal}点`, {
             fontSize: '22px',
@@ -104,6 +107,7 @@ class ScoringScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         nextBtn.on('pointerdown', () => {
+            this.sound.play('sfx_click');
             this.registry.set(REGISTRY.SCORING_RESULT, this.allResults);
             this.scene.start(SCENES.CEREMONY);
         });

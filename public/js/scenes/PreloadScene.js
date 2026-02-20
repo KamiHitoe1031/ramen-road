@@ -113,7 +113,16 @@ class PreloadScene extends Phaser.Scene {
         this.load.image('ing_shirogoma', 'assets/images/ingredients/ing_shirogoma.png');
 
         // --- 音声アセット ---
-        // Phase 4で実装
+        this.load.audio('sfx_card_pick', 'assets/audio/sfx/sfx_card_pick.mp3');
+        this.load.audio('sfx_card_pass', 'assets/audio/sfx/sfx_card_pass.mp3');
+        this.load.audio('sfx_place', 'assets/audio/sfx/sfx_place.mp3');
+        this.load.audio('sfx_remove', 'assets/audio/sfx/sfx_remove.mp3');
+        this.load.audio('sfx_bonus', 'assets/audio/sfx/sfx_bonus.mp3');
+        this.load.audio('sfx_score_tick', 'assets/audio/sfx/sfx_score_tick.mp3');
+        this.load.audio('sfx_title_reveal', 'assets/audio/sfx/sfx_title_reveal.mp3');
+        this.load.audio('sfx_winner', 'assets/audio/sfx/sfx_winner.mp3');
+        this.load.audio('sfx_timer_warn', 'assets/audio/sfx/sfx_timer_warn.mp3');
+        this.load.audio('sfx_click', 'assets/audio/sfx/sfx_click.mp3');
     }
 
     create() {
