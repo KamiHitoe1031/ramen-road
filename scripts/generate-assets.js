@@ -5,7 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const API_KEY = process.env.GEMINI_API_KEY || '***REMOVED***';
+const API_KEY = process.env.GEMINI_API_KEY;
+if (!API_KEY) { console.error('ERROR: 環境変数 GEMINI_API_KEY を設定してください'); process.exit(1); }
 const MODEL = 'gemini-3-pro-image-preview';
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 

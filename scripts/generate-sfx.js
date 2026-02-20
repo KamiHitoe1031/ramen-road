@@ -4,7 +4,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const API_KEY = '***REMOVED***';
+const API_KEY = process.env.ELEVENLABS_API_KEY;
+if (!API_KEY) { console.error('ERROR: 環境変数 ELEVENLABS_API_KEY を設定してください'); process.exit(1); }
 const API_URL = 'https://api.elevenlabs.io/v1/sound-generation';
 const OUT_DIR = path.join(__dirname, '..', 'public', 'assets', 'audio', 'sfx');
 
