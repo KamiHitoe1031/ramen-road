@@ -5,99 +5,99 @@
 サーバー不要。`npx http-server public` で動作。
 
 ### 基盤
-- [ ] index.html（Phaser CDN読み込み）
-- [ ] style.css（body margin:0, 中央配置）
-- [ ] main.js（Phaser設定・シーン登録）
-- [ ] BootScene.js / PreloadScene.js
-- [ ] constants.js（ゲーム定数）
-- [ ] ローカルサーバーで動作確認
+- [x] index.html（Phaser CDN読み込み）
+- [x] style.css（body margin:0, 中央配置）
+- [x] main.js（Phaser設定・シーン登録）
+- [x] BootScene.js / PreloadScene.js
+- [x] constants.js（ゲーム定数）
+- [x] ローカルサーバーで動作確認
 
 ### 盛り付け画面（★最重要）
-- [ ] PlacementScene.js
-- [ ] 3×3グリッド描画（Graphics矩形）
-- [ ] 丼背景（色付き円形プレースホルダー）
-- [ ] 具材カード表示（色付き矩形＋テキスト）
-- [ ] ドラッグ＆ドロップでグリッドに配置
-- [ ] グリッドから取り外し
-- [ ] 「完成！」ボタン
+- [x] PlacementScene.js
+- [x] 3×3グリッド描画（Graphics矩形）
+- [x] 丼背景（色付き円形プレースホルダー）
+- [x] 具材カード表示（色付き矩形＋テキスト）
+- [x] ドラッグ＆ドロップでグリッドに配置
+- [x] グリッドから取り外し
+- [x] 「完成！」ボタン
 
 ### 選択画面
-- [ ] SoupNoodleScene.js（スープ4択→麺3択）
-- [ ] 手札表示（ランダム9枚、ドラフトなし）
+- [x] SoupNoodleScene.js（スープ4択→麺3択）
+- [x] 手札表示（ランダム9枚、ドラフトなし）
 
 ### 採点エンジン
-- [ ] scoringEngine.js（utils/）
-- [ ] L1: スープ×麺相性
-- [ ] L1: 彩りボーナス
-- [ ] L1: 隣接Good/Bad
-- [ ] L1: 中央ボーナス
-- [ ] L1: 同具材ペナルティ
-- [ ] L2: キャラボーナス
-- [ ] L3: お客さんボーナス
-- [ ] L4: 称号判定
+- [x] scoringEngine.js（utils/）
+- [x] L1: スープ×麺相性
+- [x] L1: 彩りボーナス
+- [x] L1: 隣接Good/Bad
+- [x] L1: 中央ボーナス
+- [x] L1: 同具材ペナルティ
+- [x] L2: キャラボーナス
+- [x] L3: お客さんボーナス
+- [x] L4: 称号判定
 
 ### 結果表示
-- [ ] ScoringScene.js（L1-3内訳表示）
-- [ ] CeremonyScene.js（称号演出）
-- [ ] ResultScene.js（最終スコア＋「もう一杯！」）
+- [x] ScoringScene.js（L1-3内訳表示）
+- [x] CeremonyScene.js（称号演出）
+- [x] ResultScene.js（最終スコア＋「もう一杯！」）
 
 ### フロー接続
-- [ ] タイトル→スープ→麺→手札→盛り付け→採点→称号→結果→ループ
+- [x] タイトル→スープ→麺→手札→盛り付け→採点→称号→結果→ループ
 
 ---
 
 ## Phase 2: ドラフト＋AI対戦
 
 ### キャラ選択
-- [ ] CharSelectScene.js
-- [ ] 6キャラ表示＋ボーナスプレビュー
-- [ ] AI3体にランダム割り当て
+- [x] CharSelectScene.js
+- [x] 6キャラ表示＋ボーナスプレビュー
+- [x] AI3体にランダム割り当て
 
 ### お客さんカード
-- [ ] ランダム2人選出
-- [ ] カード表示UI
+- [x] ランダム2人選出
+- [x] カード表示UI
 
 ### ドラフト
-- [ ] cardPool.js（カードプール生成・シャッフル）
-- [ ] 寿司ゴー方式ロジック（手札配布→選択→左隣へ→9巡）
-- [ ] DraftScene.js
-- [ ] AI選択ロジック
-- [ ] ラウンドカウンター
+- [x] cardPool.js（カードプール生成・シャッフル）
+- [x] 寿司ゴー方式ロジック（手札配布→選択→左隣へ→9巡）
+- [x] DraftScene.js
+- [x] AI選択ロジック
+- [x] ラウンドカウンター
 
 ### タイマー
-- [ ] 各フェーズ制限時間
-- [ ] タイムアウト自動選択
-- [ ] 残り5秒警告
+- [x] 各フェーズ制限時間
+- [x] タイムアウト自動選択
+- [x] 残り5秒警告
 
 ### 対戦結果
-- [ ] AI3体の盛り付け自動生成
-- [ ] 全4人スコア計算＆ランキング
+- [x] AI3体の盛り付け自動生成
+- [x] 全4人スコア計算＆ランキング
 
 ---
 
 ## Phase 3: オンライン対戦
 
 ### サーバー
-- [ ] server/index.js（Express + Socket.io）
-- [ ] publicを静的配信
-- [ ] 環境変数対応
+- [x] server/index.js（Express + Socket.io）
+- [x] publicを静的配信
+- [x] 環境変数対応
 
 ### ルーム管理
-- [ ] server/gameManager.js
-- [ ] ルーム作成（6文字コード）
-- [ ] ルーム参加・退出
-- [ ] ホスト判定
+- [x] server/gameManager.js
+- [x] ルーム作成（6文字コード）
+- [x] ルーム参加・退出
+- [x] ホスト判定
 
 ### クライアント通信
-- [ ] socketClient.js
-- [ ] LobbyScene.js
-- [ ] WaitingScene.js
+- [x] socketClient.js
+- [x] LobbyScene.js
+- [x] WaitingScene.js
 
 ### ロジックのサーバー移行
-- [ ] server/gameLogic.js（ステートマシン）
-- [ ] server/scoringEngine.js
-- [ ] server/cardPool.js
-- [ ] クライアントは表示のみに変更
+- [x] server/gameLogic.js（ステートマシン）
+- [x] server/scoringEngine.js
+- [x] server/cardPool.js
+- [x] クライアントは表示のみに変更
 
 ### デプロイ
 - [ ] Railway プロジェクト作成
@@ -110,18 +110,18 @@
 ## Phase 4: ポリッシュ
 
 ### アセット
-- [ ] NanoBanana Proで全画像生成＆差し替え
-- [ ] ElevenLabs APIで効果音10種生成
-- [ ] フリーBGM選定＆組み込み
+- [x] Gemini 3.0 Proで全画像生成＆差し替え
+- [x] ElevenLabs APIで効果音10種生成
+- [ ] BGM4曲生成＆組み込み（スクリプト作成済み、要実行）
 
 ### 演出
-- [ ] カード配布アニメ
-- [ ] 盛り付け「ポトン」アニメ
-- [ ] 採点カウントアップ
-- [ ] 称号ドラムロール
-- [ ] 1位紙吹雪パーティクル
+- [x] カード配布アニメ
+- [x] 盛り付け「ポトン」アニメ
+- [x] 採点カウントアップ
+- [x] 称号ドラムロール
+- [x] 1位紙吹雪パーティクル
 
 ### UX
-- [ ] 盛り付け中リアルタイムスコアプレビュー
+- [x] 盛り付け中リアルタイムスコアプレビュー
 - [ ] モバイルタッチ最適化
-- [ ] 切断→再接続処理
+- [x] 切断→再接続処理

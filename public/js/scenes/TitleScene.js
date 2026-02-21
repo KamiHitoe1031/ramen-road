@@ -10,6 +10,9 @@ class TitleScene extends Phaser.Scene {
     create() {
         const { width, height } = this.cameras.main;
 
+        // BGM
+        window.bgmManager.play(this, BGM_MAP[SCENES.TITLE]);
+
         // 背景
         this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.4);
 
@@ -27,19 +30,32 @@ class TitleScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // 1人で練習ボタン
-        this.createButton(width / 2, 360, '🎮 1人で練習', () => {
-            this.registry.set(REGISTRY.PLAYER_COUNT, 3); // AI2体と対戦
+        this.createButton(width / 2, 340, '🎮 1人で練習', () => {
+            this.registry.set(REGISTRY.PLAYER_COUNT, 3);
+            this.registry.set('onlineMode', false);
             this.scene.start(SCENES.CHAR_SELECT);
         });
 
-        // オンライン対戦ボタン（Phase 3で有効化）
-        const onlineBtn = this.createButton(width / 2, 440, '🌐 オンライン対戦', () => {
-            // Phase 3で実装
+        // オンライン対戦ボタン
+        this.createButton(width / 2, 430, '🌐 オンライン対戦', () => {
+            this.scene.start(SCENES.LOBBY);
         });
-        onlineBtn.setAlpha(0.4);
+
+        // 遊び方ボタン（テキストリンク風）
+        const ruleBtn = this.add.text(width / 2, 500, '📖 遊び方・ルール説明', {
+            fontSize: '18px',
+            color: '#ff6b35',
+            fontFamily: GAME_CONFIG.FONT.FAMILY,
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+        ruleBtn.on('pointerover', () => ruleBtn.setColor('#ffaa77'));
+        ruleBtn.on('pointerout', () => ruleBtn.setColor('#ff6b35'));
+        ruleBtn.on('pointerdown', () => {
+            this.sound.play('sfx_click');
+            this.scene.start(SCENES.RULE);
+        });
 
         // バージョン表示
-        this.add.text(width / 2, height - 30, 'v0.1.0 - Phase 1 MVP', {
+        this.add.text(width / 2, height - 30, 'v0.3.0 - Online', {
             fontSize: '14px',
             color: '#666666',
         }).setOrigin(0.5);

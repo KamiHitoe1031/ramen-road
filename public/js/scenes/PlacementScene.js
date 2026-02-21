@@ -19,6 +19,7 @@ class PlacementScene extends Phaser.Scene {
         this.dragTarget = null;  // ドラッグ中の具材
         this.timer = GAME_CONFIG.TIMER_PLACEMENT;
         this.submitted = false;  // 二重送信防止
+        this.isOnline = this.registry.get('onlineMode') || false;
     }
 
     create() {
@@ -28,6 +29,9 @@ class PlacementScene extends Phaser.Scene {
         const ingMap = {};
         ingredients.forEach(ing => { ingMap[ing.id] = ing; });
         this.ingMap = ingMap;
+
+        // BGM（盛り付けBGMに切り替え）
+        window.bgmManager.play(this, BGM_MAP[SCENES.PLACEMENT]);
 
         // --- 背景 ---
         this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
@@ -52,7 +56,7 @@ class PlacementScene extends Phaser.Scene {
                     this.timerText.setColor('#ff0000');
                     this.sound.play('sfx_timer_warn');
                 }
-                if (this.timer <= 0) this.submitPlacement();
+                if (this.timer <= 0 && !this.submitted) this.submitPlacement();
             },
             loop: true,
         });
@@ -114,6 +118,11 @@ class PlacementScene extends Phaser.Scene {
         });
         this.updateScorePreview();
 
+        // オンラインイベント
+        if (this.isOnline) {
+            this.setupOnlineEvents();
+        }
+
         // --- お客さん情報ミニ表示 ---
         const customerIds = this.registry.get(REGISTRY.ACTIVE_CUSTOMERS);
         const allCustomers = this.registry.get('data_customers');
@@ -127,6 +136,25 @@ class PlacementScene extends Phaser.Scene {
                 color: '#cccccc',
                 align: 'right',
             }).setOrigin(1, 0);
+        });
+    }
+
+    setupOnlineEvents() {
+        const client = window.socketClient;
+        if (!client || !client.socket) return;
+
+        client.on('all_placed', () => {
+            // 全員提出完了 → 採点結果を待つ（scoring_resultsはScoringSceneで受け取る）
+            console.log('[Placement Online] All players placed');
+        });
+
+        client.on('scoring_results', (data) => {
+            // サーバーから採点結果を受信（ceremonyデータもバンドル）
+            this.registry.set('onlineScoringResults', data);
+            if (data.ceremony) {
+                this.registry.set('onlineCeremonyResults', data.ceremony);
+            }
+            this.scene.start(SCENES.SCORING);
         });
     }
 
@@ -286,16 +314,35 @@ class PlacementScene extends Phaser.Scene {
         // 完成演出: グリッド全体をフラッシュ
         const { width, height } = this.cameras.main;
         const flash = this.add.rectangle(width / 2, 230, 300, 300, 0xffd700, 0.3).setDepth(50);
-        this.tweens.add({
-            targets: flash,
-            alpha: 0,
-            duration: 600,
-            onComplete: () => {
-                flash.destroy();
-                this.generateAIPlayers();
-                this.scene.start(SCENES.SCORING);
-            },
-        });
+
+        if (this.isOnline) {
+            // オンライン: サーバーにグリッド送信
+            window.socketClient.submitPlacement(this.grid);
+            this.tweens.add({
+                targets: flash,
+                alpha: 0,
+                duration: 600,
+                onComplete: () => {
+                    flash.destroy();
+                    // 「他のプレイヤーを待機中」表示
+                    this.add.text(width / 2, height / 2, '他のプレイヤーの完成を待っています…', {
+                        fontSize: '18px',
+                        color: GAME_CONFIG.COLORS.TEXT_PRIMARY,
+                    }).setOrigin(0.5).setDepth(60);
+                },
+            });
+        } else {
+            this.tweens.add({
+                targets: flash,
+                alpha: 0,
+                duration: 600,
+                onComplete: () => {
+                    flash.destroy();
+                    this.generateAIPlayers();
+                    this.scene.start(SCENES.SCORING);
+                },
+            });
+        }
     }
 
     generateAIPlayers() {

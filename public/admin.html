@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍜 らーめん道 管理画面</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <!-- ログイン画面 -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>🍜 らーめん道 管理画面</h1>
+            <p>管理者パスワードを入力してください</p>
+            <input type="password" id="login-password" placeholder="パスワード" autocomplete="off">
+            <button id="login-btn">ログイン</button>
+            <p id="login-error" class="error"></p>
+            <a href="/" class="back-link">← ゲームに戻る</a>
+        </div>
+    </div>
+
+    <!-- 管理画面メイン -->
+    <div id="admin-main" style="display:none;">
+        <header>
+            <h1>🍜 らーめん道 管理画面</h1>
+            <div class="header-actions">
+                <a href="/" class="btn-link">ゲームに戻る</a>
+                <button id="logout-btn" class="btn-danger">ログアウト</button>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab active" data-tab="scoring">📊 スコア設定</button>
+            <button class="tab" data-tab="ingredients">🥩 具材</button>
+            <button class="tab" data-tab="soups">🍲 スープ・麺</button>
+            <button class="tab" data-tab="characters">👨‍🍳 キャラ</button>
+            <button class="tab" data-tab="customers">👥 お客さん</button>
+            <button class="tab" data-tab="titles">🏆 称号</button>
+            <button class="tab" data-tab="password">🔒 パスワード</button>
+        </nav>
+
+        <main>
+            <!-- スコア設定 -->
+            <section id="tab-scoring" class="tab-content active">
+                <h2>📊 スコア設定</h2>
+
+                <div class="card">
+                    <h3>スープ × 麺 相性（0〜4点）</h3>
+                    <table id="soup-noodle-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>細麺</th>
+                                <th>ちぢれ麺</th>
+                                <th>太麺</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>彩りボーナス（色数 → 加点）</h3>
+                    <div id="color-bonus-fields" class="inline-fields"></div>
+                </div>
+
+                <div class="card">
+                    <h3>隣接ボーナス（良い組み合わせ）</h3>
+                    <p class="sub">各ペア +<input type="number" id="good-pair-points" class="inline-input" min="0" max="10">点</p>
+                    <div id="good-pairs-list" class="pair-list"></div>
+                    <button id="add-good-pair" class="btn-small">+ ペア追加</button>
+                </div>
+
+                <div class="card">
+                    <h3>隣接ペナルティ（悪い組み合わせ）</h3>
+                    <p class="sub">各ペア <input type="number" id="bad-pair-points" class="inline-input" min="-10" max="0">点</p>
+                    <div id="bad-pairs-list" class="pair-list"></div>
+                    <button id="add-bad-pair" class="btn-small">+ ペア追加</button>
+                </div>
+
+                <div class="card row">
+                    <div>
+                        <h3>中央ボーナス</h3>
+                        <input type="number" id="center-bonus" class="inline-input" min="0" max="10">点
+                    </div>
+                    <div>
+                        <h3>重複ペナルティ</h3>
+                        <input type="number" id="duplicate-penalty" class="inline-input" min="-10" max="0">点
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>タイマー設定（秒）</h3>
+                    <div class="inline-fields" id="timer-fields"></div>
+                </div>
+
+                <button id="save-scoring" class="btn-primary">💾 スコア設定を保存</button>
+            </section>
+
+            <!-- 具材管理 -->
+            <section id="tab-ingredients" class="tab-content">
+                <h2>🥩 具材管理（18種）</h2>
+                <div id="ingredients-list" class="item-grid"></div>
+                <button id="save-ingredients" class="btn-primary">💾 具材データを保存</button>
+            </section>
+
+            <!-- スープ・麺 -->
+            <section id="tab-soups" class="tab-content">
+                <h2>🍲 スープ</h2>
+                <div id="soups-list" class="item-grid"></div>
+                <button id="save-soups" class="btn-primary">💾 スープデータを保存</button>
+
+                <h2 style="margin-top:24px;">🍜 麺</h2>
+                <div id="noodles-list" class="item-grid"></div>
+                <button id="save-noodles" class="btn-primary">💾 麺データを保存</button>
+            </section>
+
+            <!-- キャラクター -->
+            <section id="tab-characters" class="tab-content">
+                <h2>👨‍🍳 キャラクター管理（6人）</h2>
+                <div id="characters-list" class="item-list"></div>
+                <button id="save-characters" class="btn-primary">💾 キャラデータを保存</button>
+            </section>
+
+            <!-- お客さん -->
+            <section id="tab-customers" class="tab-content">
+                <h2>👥 お客さん管理（10人）</h2>
+                <div id="customers-list" class="item-list"></div>
+                <button id="save-customers" class="btn-primary">💾 お客さんデータを保存</button>
+            </section>
+
+            <!-- 称号 -->
+            <section id="tab-titles" class="tab-content">
+                <h2>🏆 称号設定</h2>
+                <h3>比較系（プレイヤー間競争）</h3>
+                <div id="titles-comparative" class="item-list"></div>
+                <h3>達成系（個人達成）</h3>
+                <div id="titles-achievement" class="item-list"></div>
+                <button id="save-titles" class="btn-primary">💾 称号データを保存</button>
+            </section>
+
+            <!-- パスワード変更 -->
+            <section id="tab-password" class="tab-content">
+                <h2>🔒 パスワード変更</h2>
+                <div class="card" style="max-width:400px;">
+                    <label>現在のパスワード</label>
+                    <input type="password" id="current-password" autocomplete="off">
+                    <label>新しいパスワード</label>
+                    <input type="password" id="new-password" autocomplete="off">
+                    <label>新しいパスワード（確認）</label>
+                    <input type="password" id="confirm-password" autocomplete="off">
+                    <button id="change-password-btn" class="btn-primary" style="margin-top:16px;">パスワードを変更</button>
+                    <p id="password-message" class="message"></p>
+                </div>
+            </section>
+        </main>
+
+        <!-- 通知トースト -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

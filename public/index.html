@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="css/style.css">
     <!-- Phaser 3 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.0/dist/phaser.min.js"></script>
-    <!-- Socket.io CDN（Phase 3以降で有効化） -->
-    <!-- <script src="/socket.io/socket.io.js"></script> -->
+    <!-- Socket.io CDN -->
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
     <div id="game-container"></div>
@@ -17,12 +17,15 @@
     <script src="js/utils/debugLogger.js"></script>
     <script src="js/utils/constants.js"></script>
     <script src="js/utils/scoringEngine.js"></script>
-    <!-- <script src="js/utils/socketClient.js"></script> -->
+    <script src="js/utils/socketClient.js"></script>
+    <script src="js/utils/bgmManager.js"></script>
 
     <!-- シーン -->
     <script src="js/scenes/BootScene.js"></script>
     <script src="js/scenes/PreloadScene.js"></script>
     <script src="js/scenes/TitleScene.js"></script>
+    <script src="js/scenes/LobbyScene.js"></script>
+    <script src="js/scenes/WaitingScene.js"></script>
     <script src="js/scenes/CharSelectScene.js"></script>
     <script src="js/scenes/SoupNoodleScene.js"></script>
     <script src="js/scenes/DraftScene.js"></script>
@@ -30,6 +33,7 @@
     <script src="js/scenes/ScoringScene.js"></script>
     <script src="js/scenes/CeremonyScene.js"></script>
     <script src="js/scenes/ResultScene.js"></script>
+    <script src="js/scenes/RuleScene.js"></script>
 
     <!-- メインエントリー（最後に読み込む） -->
     <script src="js/main.js"></script>

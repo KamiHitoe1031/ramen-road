@@ -7,6 +7,9 @@ const config = {
     height: GAME_CONFIG.HEIGHT,
     parent: 'game-container',
     backgroundColor: GAME_CONFIG.COLORS.BACKGROUND,
+    dom: {
+        createContainer: true, // DOM入力要素（LobbyScene用）
+    },
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -15,6 +18,8 @@ const config = {
         BootScene,
         PreloadScene,
         TitleScene,
+        LobbyScene,
+        WaitingScene,
         CharSelectScene,
         SoupNoodleScene,
         DraftScene,
@@ -22,10 +27,12 @@ const config = {
         ScoringScene,
         CeremonyScene,
         ResultScene,
+        RuleScene,
     ],
 };
 
 const game = new Phaser.Game(config);
+window.game = game; // 切断ハンドラーからアクセス用
 
 console.log('[Game] Phaser initialized', {
     version: Phaser.VERSION,

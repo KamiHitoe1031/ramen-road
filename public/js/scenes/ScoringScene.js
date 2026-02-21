@@ -8,34 +8,52 @@ class ScoringScene extends Phaser.Scene {
 
     init() {
         this.allResults = [];
+        this.isOnline = this.registry.get('onlineMode') || false;
     }
 
     create() {
         const { width, height } = this.cameras.main;
-        const scoring = this.registry.get('data_scoring');
-        const ingredients = this.registry.get('data_ingredients');
         const characters = this.registry.get('data_characters');
-        const allCustomers = this.registry.get('data_customers');
-        const customerIds = this.registry.get(REGISTRY.ACTIVE_CUSTOMERS);
-        const activeCustomers = customerIds.map(id => allCustomers.find(c => c.id === id));
-        const allPlayers = this.registry.get(REGISTRY.ALL_PLAYERS);
+
+        // BGM（結果BGMに切り替え）
+        window.bgmManager.play(this, BGM_MAP[SCENES.SCORING]);
 
         // 背景
         this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
 
-        const engine = new ScoringEngine(scoring, ingredients);
+        if (this.isOnline) {
+            // オンライン: サーバーから受け取った採点結果を使用
+            const onlineData = this.registry.get('onlineScoringResults');
+            if (onlineData) {
+                this.allResults = onlineData.players.map(p => ({
+                    playerId: p.playerId,
+                    name: p.name,
+                    state: p.state,
+                    scores: p.scores,
+                }));
+            }
+        } else {
+            // オフライン: ローカルで採点
+            const scoring = this.registry.get('data_scoring');
+            const ingredients = this.registry.get('data_ingredients');
+            const allCustomers = this.registry.get('data_customers');
+            const customerIds = this.registry.get(REGISTRY.ACTIVE_CUSTOMERS);
+            const activeCustomers = customerIds.map(id => allCustomers.find(c => c.id === id));
+            const allPlayers = this.registry.get(REGISTRY.ALL_PLAYERS);
 
-        // 全プレイヤーの採点
-        this.allResults = allPlayers.map(p => {
-            const charData = characters.find(c => c.id === p.characterId);
-            const scores = engine.calculate(
-                { ...p, playerId: p.playerId },
-                charData,
-                activeCustomers,
-                allPlayers.map(ap => ({ ...ap }))
-            );
-            return { playerId: p.playerId, name: p.name, state: p, scores };
-        });
+            const engine = new ScoringEngine(scoring, ingredients);
+
+            this.allResults = allPlayers.map(p => {
+                const charData = characters.find(c => c.id === p.characterId);
+                const scores = engine.calculate(
+                    { ...p, playerId: p.playerId },
+                    charData,
+                    activeCustomers,
+                    allPlayers.map(ap => ({ ...ap }))
+                );
+                return { playerId: p.playerId, name: p.name, state: p, scores };
+            });
+        }
 
         // ログ出力
         this.allResults.forEach(r => {
@@ -43,7 +61,8 @@ class ScoringScene extends Phaser.Scene {
         });
 
         // 自分の結果を表示
-        const myResult = this.allResults.find(r => r.playerId === 'player');
+        const myPlayerId = this.isOnline ? window.socketClient.socket.id : 'player';
+        const myResult = this.allResults.find(r => r.playerId === myPlayerId) || this.allResults[0];
         const s = myResult.scores;
 
         this.add.text(width / 2, 16, '📊 採点結果', {
@@ -124,6 +143,8 @@ class ScoringScene extends Phaser.Scene {
             this.registry.set(REGISTRY.SCORING_RESULT, this.allResults);
             this.scene.start(SCENES.CEREMONY);
         });
+
+        // オンライン: ceremonyデータはscoring_resultsにバンドル済み（PlacementSceneで保存済み）
     }
 
     drawSection(x, startY, title, lines, subtotalText, titleSize, fontSize, lineH) {

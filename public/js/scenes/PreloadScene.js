@@ -112,7 +112,7 @@ class PreloadScene extends Phaser.Scene {
         this.load.image('ing_karamiso', 'assets/images/ingredients/ing_karamiso.png');
         this.load.image('ing_shirogoma', 'assets/images/ingredients/ing_shirogoma.png');
 
-        // --- 音声アセット ---
+        // --- 音声アセット（SFX） ---
         this.load.audio('sfx_card_pick', 'assets/audio/sfx/sfx_card_pick.mp3');
         this.load.audio('sfx_card_pass', 'assets/audio/sfx/sfx_card_pass.mp3');
         this.load.audio('sfx_place', 'assets/audio/sfx/sfx_place.mp3');
@@ -123,6 +123,12 @@ class PreloadScene extends Phaser.Scene {
         this.load.audio('sfx_winner', 'assets/audio/sfx/sfx_winner.mp3');
         this.load.audio('sfx_timer_warn', 'assets/audio/sfx/sfx_timer_warn.mp3');
         this.load.audio('sfx_click', 'assets/audio/sfx/sfx_click.mp3');
+
+        // --- 音声アセット（BGM）- ファイルがなくてもエラーにしない ---
+        this.load.audio('bgm_lobby', 'assets/audio/bgm/bgm_lobby.mp3');
+        this.load.audio('bgm_draft', 'assets/audio/bgm/bgm_draft.mp3');
+        this.load.audio('bgm_placement', 'assets/audio/bgm/bgm_placement.mp3');
+        this.load.audio('bgm_result', 'assets/audio/bgm/bgm_result.mp3');
     }
 
     create() {

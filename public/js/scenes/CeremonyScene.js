@@ -10,23 +10,35 @@ class CeremonyScene extends Phaser.Scene {
         this.currentTitleIndex = 0;
         this.titleBonuses = {}; // playerId → ボーナス点数合計
         this.advancing = false; // 連打防止
+        this.isOnline = this.registry.get('onlineMode') || false;
     }
 
     create() {
         const { width, height } = this.cameras.main;
         const allResults = this.registry.get(REGISTRY.SCORING_RESULT);
-        const titlesData = this.registry.get('data_titles');
-        const scoring = this.registry.get('data_scoring');
-        const ingredients = this.registry.get('data_ingredients');
+
+        // BGM（結果BGM継続）
+        window.bgmManager.play(this, BGM_MAP[SCENES.CEREMONY]);
 
         // 背景
         this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
 
-        const engine = new ScoringEngine(scoring, ingredients);
-        const allCustomers = this.registry.get('data_customers');
-        const customerIds = this.registry.get(REGISTRY.ACTIVE_CUSTOMERS);
-        const activeCustomers = customerIds.map(id => allCustomers.find(c => c.id === id));
-        this.awardedTitles = engine.calcLayer4(allResults, titlesData, activeCustomers);
+        if (this.isOnline) {
+            // オンライン: サーバーから受け取った称号データを使用
+            const ceremonyData = this.registry.get('onlineCeremonyResults');
+            this.awardedTitles = ceremonyData ? ceremonyData.titles : [];
+            this.onlineFinalScores = ceremonyData ? ceremonyData.finalScores : null;
+        } else {
+            // オフライン: ローカルで称号計算
+            const titlesData = this.registry.get('data_titles');
+            const scoring = this.registry.get('data_scoring');
+            const ingredients = this.registry.get('data_ingredients');
+            const engine = new ScoringEngine(scoring, ingredients);
+            const allCustomers = this.registry.get('data_customers');
+            const customerIds = this.registry.get(REGISTRY.ACTIVE_CUSTOMERS);
+            const activeCustomers = customerIds.map(id => allCustomers.find(c => c.id === id));
+            this.awardedTitles = engine.calcLayer4(allResults, titlesData, activeCustomers);
+        }
 
         // 各プレイヤーのボーナス初期化
         allResults.forEach(r => { this.titleBonuses[r.playerId] = 0; });
@@ -176,22 +188,27 @@ class CeremonyScene extends Phaser.Scene {
     }
 
     goToResult() {
-        // 最終スコア計算
-        const allResults = this.registry.get(REGISTRY.SCORING_RESULT);
+        if (this.isOnline && this.onlineFinalScores) {
+            // オンライン: サーバーが計算した最終スコアを使用
+            this.registry.set(REGISTRY.FINAL_SCORES, this.onlineFinalScores);
+        } else {
+            // オフライン: ローカルで最終スコア計算
+            const allResults = this.registry.get(REGISTRY.SCORING_RESULT);
 
-        const finalScores = allResults.map(r => ({
-            playerId: r.playerId,
-            name: r.name,
-            baseScore: r.scores.baseTotal,
-            titleBonus: this.titleBonuses[r.playerId] || 0,
-            totalScore: r.scores.baseTotal + (this.titleBonuses[r.playerId] || 0),
-        }));
+            const finalScores = allResults.map(r => ({
+                playerId: r.playerId,
+                name: r.name,
+                baseScore: r.scores.baseTotal,
+                titleBonus: this.titleBonuses[r.playerId] || 0,
+                totalScore: r.scores.baseTotal + (this.titleBonuses[r.playerId] || 0),
+            }));
 
-        // ソート（降順）
-        finalScores.sort((a, b) => b.totalScore - a.totalScore);
-        finalScores.forEach((s, i) => { s.rank = i + 1; });
+            // ソート（降順）
+            finalScores.sort((a, b) => b.totalScore - a.totalScore);
+            finalScores.forEach((s, i) => { s.rank = i + 1; });
 
-        this.registry.set(REGISTRY.FINAL_SCORES, finalScores);
+            this.registry.set(REGISTRY.FINAL_SCORES, finalScores);
+        }
         this.scene.start(SCENES.RESULT);
     }
 }

@@ -1,7 +1,21 @@
 /**
  * GameManager - ルーム管理とSocket.ioイベントハンドリング
- * Phase 3で本格実装
  */
+const path = require('path');
+const GameLogic = require('./gameLogic');
+
+// データファイル読み込み
+const dataDir = path.join(__dirname, '..', 'data');
+const dataFiles = {
+    ingredients: require(path.join(dataDir, 'ingredients.json')),
+    soups: require(path.join(dataDir, 'soups.json')),
+    noodles: require(path.join(dataDir, 'noodles.json')),
+    characters: require(path.join(dataDir, 'characters.json')),
+    customers: require(path.join(dataDir, 'customers.json')),
+    scoring: require(path.join(dataDir, 'scoring.json')),
+    titles: require(path.join(dataDir, 'titles.json')),
+};
+
 class GameManager {
     constructor(io) {
         this.io = io;
@@ -22,7 +36,7 @@ class GameManager {
     }
 
     generateRoomCode() {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 紛らわしい文字を除外
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         let code = '';
         for (let i = 0; i < 6; i++) {
             code += chars[Math.floor(Math.random() * chars.length)];
@@ -30,7 +44,27 @@ class GameManager {
         return this.rooms.has(code) ? this.generateRoomCode() : code;
     }
 
+    getRoom(socket) {
+        const roomCode = socket.roomCode;
+        return roomCode ? this.rooms.get(roomCode) : null;
+    }
+
+    // ========================================
+    // ルーム管理
+    // ========================================
+
     createRoom(socket, { playerName, playerCount }) {
+        // バリデーション
+        if (!playerName || typeof playerName !== 'string') {
+            socket.emit('room_error', { message: '名前を入力してください' });
+            return;
+        }
+        playerCount = parseInt(playerCount);
+        if (playerCount < 3 || playerCount > 4) {
+            socket.emit('room_error', { message: 'プレイヤー数は3-4人です' });
+            return;
+        }
+
         const roomCode = this.generateRoomCode();
         const room = {
             code: roomCode,
@@ -38,15 +72,23 @@ class GameManager {
             maxPlayers: playerCount,
             players: [{ id: socket.id, name: playerName }],
             phase: 'waiting',
-            gameState: null,
+            gameLogic: null,
         };
         this.rooms.set(roomCode, room);
         socket.join(roomCode);
         socket.roomCode = roomCode;
-        socket.emit('room_created', { roomCode });
+
+        console.log(`[GameManager] Room created: ${roomCode} by ${playerName} (${playerCount}P)`);
+        socket.emit('room_created', { roomCode, players: room.players });
     }
 
     joinRoom(socket, { roomCode, playerName }) {
+        if (!playerName || typeof playerName !== 'string') {
+            socket.emit('room_error', { message: '名前を入力してください' });
+            return;
+        }
+        roomCode = (roomCode || '').toUpperCase().trim();
+
         const room = this.rooms.get(roomCode);
         if (!room) {
             socket.emit('room_error', { message: '部屋が見つかりません' });
@@ -65,50 +107,116 @@ class GameManager {
         socket.join(roomCode);
         socket.roomCode = roomCode;
 
+        console.log(`[GameManager] ${playerName} joined room ${roomCode} (${room.players.length}/${room.maxPlayers})`);
+
         socket.emit('room_joined', { roomCode, players: room.players });
-        socket.to(roomCode).emit('player_joined', { player: { id: socket.id, name: playerName } });
+        socket.to(roomCode).emit('player_joined', {
+            player: { id: socket.id, name: playerName },
+            players: room.players,
+        });
     }
 
     leaveRoom(socket) {
-        // Phase 3で実装
-    }
-
-    startGame(socket) {
-        // Phase 3で実装: ホストのみ開始可能
-    }
-
-    selectCharacter(socket, data) {
-        // Phase 3で実装
-    }
-
-    selectSoup(socket, data) {
-        // Phase 3で実装
-    }
-
-    selectNoodle(socket, data) {
-        // Phase 3で実装
-    }
-
-    draftPick(socket, data) {
-        // Phase 3で実装
-    }
-
-    submitPlacement(socket, data) {
-        // Phase 3で実装
-    }
-
-    handleDisconnect(socket) {
-        const roomCode = socket.roomCode;
-        if (!roomCode) return;
-        const room = this.rooms.get(roomCode);
+        const room = this.getRoom(socket);
         if (!room) return;
 
         room.players = room.players.filter(p => p.id !== socket.id);
-        this.io.to(roomCode).emit('player_left', { playerId: socket.id });
+        socket.leave(room.code);
+        this.io.to(room.code).emit('player_left', {
+            playerId: socket.id,
+            players: room.players,
+        });
+
+        console.log(`[GameManager] Player left room ${room.code} (${room.players.length} remaining)`);
 
         if (room.players.length === 0) {
-            this.rooms.delete(roomCode);
+            if (room.gameLogic) room.gameLogic.clearTimeout();
+            this.rooms.delete(room.code);
+            console.log(`[GameManager] Room ${room.code} deleted (empty)`);
+        } else if (room.hostId === socket.id) {
+            // ホスト交代
+            room.hostId = room.players[0].id;
+            this.io.to(room.code).emit('host_changed', { hostId: room.hostId });
         }
+
+        socket.roomCode = null;
+    }
+
+    // ========================================
+    // ゲーム開始
+    // ========================================
+
+    startGame(socket) {
+        const room = this.getRoom(socket);
+        if (!room) return;
+
+        if (room.hostId !== socket.id) {
+            socket.emit('room_error', { message: 'ホストのみ開始できます' });
+            return;
+        }
+        if (room.players.length < room.maxPlayers) {
+            socket.emit('room_error', { message: `あと${room.maxPlayers - room.players.length}人必要です` });
+            return;
+        }
+        if (room.phase !== 'waiting' && room.phase !== 'result') {
+            socket.emit('room_error', { message: 'ゲームは既に進行中です' });
+            return;
+        }
+
+        console.log(`[GameManager] Game starting in room ${room.code}`);
+        room.phase = 'playing';
+        room.gameLogic = new GameLogic(room, this.io, dataFiles);
+
+        this.io.to(room.code).emit('game_starting', {
+            players: room.players,
+            playerCount: room.maxPlayers,
+        });
+
+        // 少し待ってからフェーズ開始
+        setTimeout(() => room.gameLogic.nextPhase(), 1000);
+    }
+
+    // ========================================
+    // ゲームアクション
+    // ========================================
+
+    selectCharacter(socket, { characterId }) {
+        const room = this.getRoom(socket);
+        if (!room || !room.gameLogic) return;
+        room.gameLogic.handleCharSelect(socket.id, characterId);
+    }
+
+    selectSoup(socket, { soupId }) {
+        const room = this.getRoom(socket);
+        if (!room || !room.gameLogic) return;
+        room.gameLogic.handleSoupSelect(socket.id, soupId);
+    }
+
+    selectNoodle(socket, { noodleId }) {
+        const room = this.getRoom(socket);
+        if (!room || !room.gameLogic) return;
+        room.gameLogic.handleNoodleSelect(socket.id, noodleId);
+    }
+
+    draftPick(socket, { ingredientId }) {
+        const room = this.getRoom(socket);
+        if (!room || !room.gameLogic) return;
+        room.gameLogic.handleDraftPick(socket.id, ingredientId);
+    }
+
+    submitPlacement(socket, { grid }) {
+        const room = this.getRoom(socket);
+        if (!room || !room.gameLogic) return;
+        room.gameLogic.handlePlacement(socket.id, grid);
+    }
+
+    // ========================================
+    // 切断処理
+    // ========================================
+
+    handleDisconnect(socket) {
+        console.log(`[GameManager] Player disconnected: ${socket.id}`);
+        this.leaveRoom(socket);
     }
 }
 

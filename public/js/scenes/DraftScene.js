@@ -14,19 +14,31 @@ class DraftScene extends Phaser.Scene {
         this.totalRounds = GAME_CONFIG.DRAFT_PICKS; // 9
         this.picks = [];               // プレイヤーの獲得済みカード
         this.aiPicks = [];             // AI各々の獲得済み [[], []]
-        this.hands = data.hands || [];  // [playerHand, ai0Hand, ai1Hand, ...]
         this.selectedCard = null;
         this.timer = GAME_CONFIG.TIMER_DRAFT_TURN;
         this.decided = false;
+        this.isOnline = this.registry.get('onlineMode') || false;
 
-        // AI獲得済み初期化
-        for (let i = 1; i < this.playerCount; i++) {
-            this.aiPicks.push([]);
+        if (this.isOnline) {
+            // オンライン: サーバーからの初期手札
+            this.currentHand = data.hand || [];
+            this.round = (data.round || 1) - 1;
+            this.totalRounds = data.totalRounds || 9;
+            this.picks = data.picked || [];
+        } else {
+            // オフライン: 全員分の手札
+            this.hands = data.hands || [];
+            for (let i = 1; i < this.playerCount; i++) {
+                this.aiPicks.push([]);
+            }
         }
     }
 
     create() {
         const { width, height } = this.cameras.main;
+
+        // BGM（ドラフトBGM継続）
+        window.bgmManager.play(this, BGM_MAP[SCENES.DRAFT]);
 
         // 背景
         this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
@@ -36,7 +48,37 @@ class DraftScene extends Phaser.Scene {
         this.ingMap = {};
         ingredients.forEach(ing => { this.ingMap[ing.id] = ing; });
 
+        if (this.isOnline) {
+            this.setupOnlineEvents();
+        }
+
         this.showRound();
+    }
+
+    setupOnlineEvents() {
+        const client = window.socketClient;
+        if (!client || !client.socket) return;
+
+        client.on('draft_hand', (data) => {
+            // 次のラウンドの手札を受け取る
+            this.currentHand = data.hand;
+            this.round = (data.round || 1) - 1;
+            this.picks = data.picked || this.picks;
+            this.showRound();
+        });
+
+        client.on('draft_round_done', (data) => {
+            // 各プレイヤーのピック結果（ログ表示等に使える）
+            console.log(`[Draft Online] Round ${data.round} done`, data.picks);
+        });
+
+        client.on('draft_complete', (data) => {
+            // ドラフト完了 → 盛り付けへ
+            console.log('[Draft Online] Draft complete:', data.yourIngredients);
+            this.registry.set(REGISTRY.PLAYER_HAND, data.yourIngredients);
+            this.sound.play('sfx_bonus');
+            this.scene.start(SCENES.PLACEMENT);
+        });
     }
 
     showRound() {
@@ -74,8 +116,8 @@ class DraftScene extends Phaser.Scene {
                     this.timerText.setColor('#ff0000');
                     this.sound.play('sfx_timer_warn');
                 }
-                if (this.timer <= 0) {
-                    // タイムアウト：先頭のカードを自動選択
+                if (this.timer <= 0 && !this.isOnline) {
+                    // タイムアウト：先頭のカードを自動選択（オフラインのみ、オンラインはサーバーが処理）
                     this.confirmPick(this.hands[0][0]);
                 }
             },
@@ -96,7 +138,7 @@ class DraftScene extends Phaser.Scene {
         });
 
         // --- 手札カード表示 ---
-        const myHand = this.hands[0];
+        const myHand = this.isOnline ? this.currentHand : this.hands[0];
         const cardW = 70, cardH = 90, gap = 6;
         const totalW = myHand.length * (cardW + gap) - gap;
         const startX = (width - totalW) / 2 + cardW / 2;
@@ -205,15 +247,22 @@ class DraftScene extends Phaser.Scene {
             this.confirmPick(this.selectedCard);
         });
 
-        // AI他プレイヤー情報
-        const characters = this.registry.get('data_characters');
-        const selectedCharId = this.registry.get(REGISTRY.SELECTED_CHARACTER);
-        const availChars = characters.filter(c => c.id !== selectedCharId);
+        // AI他プレイヤー情報（オフラインのみ）
+        if (!this.isOnline) {
+            const characters = this.registry.get('data_characters');
+            const selectedCharId = this.registry.get(REGISTRY.SELECTED_CHARACTER);
+            const availChars = characters.filter(c => c.id !== selectedCharId);
 
-        for (let ai = 0; ai < this.playerCount - 1; ai++) {
-            const charData = availChars[ai] || {};
-            this.add.text(width - 10, height - 80 + ai * 22,
-                `${charData.name || 'AI'}: ${this.aiPicks[ai].length}枚獲得 🤔`, {
+            for (let ai = 0; ai < this.playerCount - 1; ai++) {
+                const charData = availChars[ai] || {};
+                this.add.text(width - 10, height - 80 + ai * 22,
+                    `${charData.name || 'AI'}: ${this.aiPicks[ai].length}枚獲得 🤔`, {
+                        fontSize: '12px', color: '#888',
+                    }).setOrigin(1, 0);
+            }
+        } else {
+            this.add.text(width - 10, height - 50,
+                '他プレイヤーの選択を待機中…', {
                     fontSize: '12px', color: '#888',
                 }).setOrigin(1, 0);
         }
@@ -247,7 +296,14 @@ class DraftScene extends Phaser.Scene {
         this.sound.play('sfx_card_pick');
         console.log(`[Draft] Round ${this.round + 1}: Player picks ${ingId}`);
 
-        // プレイヤーのピック
+        if (this.isOnline) {
+            // オンライン: サーバーにピックを送信、次の手札はdraft_handイベントで届く
+            this.picks.push(ingId);
+            window.socketClient.draftPick(ingId);
+            return;
+        }
+
+        // オフライン: ローカル処理
         this.picks.push(ingId);
         const playerHandIdx = this.hands[0].indexOf(ingId);
         if (playerHandIdx !== -1) this.hands[0].splice(playerHandIdx, 1);

@@ -90,6 +90,8 @@ const SCENES = {
     BOOT: 'BootScene',
     PRELOAD: 'PreloadScene',
     TITLE: 'TitleScene',
+    LOBBY: 'LobbyScene',
+    WAITING: 'WaitingScene',
     CHAR_SELECT: 'CharSelectScene',
     SOUP_NOODLE: 'SoupNoodleScene',
     DRAFT: 'DraftScene',
@@ -97,6 +99,22 @@ const SCENES = {
     SCORING: 'ScoringScene',
     CEREMONY: 'CeremonyScene',
     RESULT: 'ResultScene',
+    RULE: 'RuleScene',
+};
+
+// BGMマッピング（シーン → BGMキー）
+const BGM_MAP = {
+    [SCENES.TITLE]: 'bgm_lobby',
+    [SCENES.LOBBY]: 'bgm_lobby',
+    [SCENES.WAITING]: 'bgm_lobby',
+    [SCENES.CHAR_SELECT]: 'bgm_draft',
+    [SCENES.SOUP_NOODLE]: 'bgm_draft',
+    [SCENES.DRAFT]: 'bgm_draft',
+    [SCENES.PLACEMENT]: 'bgm_placement',
+    [SCENES.SCORING]: 'bgm_result',
+    [SCENES.CEREMONY]: 'bgm_result',
+    [SCENES.RESULT]: 'bgm_result',
+    [SCENES.RULE]: 'bgm_lobby',
 };
 
 // レジストリキー（シーン間データ共有）

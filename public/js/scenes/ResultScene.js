@@ -13,6 +13,11 @@ class ResultScene extends Phaser.Scene {
         const allPlayers = this.registry.get(REGISTRY.ALL_PLAYERS);
         const characters = this.registry.get('data_characters');
         const medals = ['🥇', '🥈', '🥉'];
+        const isOnline = this.registry.get('onlineMode') || false;
+        const myPlayerId = isOnline && window.socketClient?.socket ? window.socketClient.socket.id : 'player';
+
+        // BGM（結果BGM継続）
+        window.bgmManager.play(this, BGM_MAP[SCENES.RESULT]);
 
         // 背景
         this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
@@ -29,7 +34,7 @@ class ResultScene extends Phaser.Scene {
         finalScores.forEach((score, i) => {
             const y = 120 + i * 90;
             const medal = medals[i] || '  ';
-            const isMe = score.playerId === 'player';
+            const isMe = score.playerId === myPlayerId;
 
             // 背景ハイライト（自分）
             if (isMe) {
@@ -38,9 +43,9 @@ class ResultScene extends Phaser.Scene {
             }
 
             // キャラアイコン
-            const player = allPlayers.find(p => p.playerId === score.playerId);
-            if (player) {
-                const charData = characters.find(c => c.id === player.characterId);
+            const charId = score.characterId || (allPlayers ? allPlayers.find(p => p.playerId === score.playerId)?.characterId : null);
+            if (charId) {
+                const charData = characters.find(c => c.id === charId);
                 if (charData) {
                     this.add.image(55, y + 15, charData.spriteKey).setDisplaySize(48, 48);
                 }
@@ -103,27 +108,39 @@ class ResultScene extends Phaser.Scene {
         // --- ボタン ---
         const btnY = height - 60;
 
-        // もう一杯！
-        const retryBtn = this.add.rectangle(width / 2 - 120, btnY, 200, 50, GAME_CONFIG.COLORS.BTN_PRIMARY)
-            .setInteractive({ useHandCursor: true });
-        this.add.text(width / 2 - 120, btnY, '🍜 もう一杯！', {
-            fontSize: '18px', color: '#ffffff',
-        }).setOrigin(0.5);
-        retryBtn.on('pointerdown', () => {
-            this.sound.play('sfx_click');
-            this.scene.start(SCENES.CHAR_SELECT);
-        });
+        if (isOnline) {
+            // オンライン: ロビーに戻る
+            const lobbyBtn = this.add.rectangle(width / 2, btnY, 280, 50, GAME_CONFIG.COLORS.BTN_PRIMARY)
+                .setInteractive({ useHandCursor: true });
+            this.add.text(width / 2, btnY, '🏠 タイトルへ戻る', {
+                fontSize: '18px', color: '#ffffff',
+            }).setOrigin(0.5);
+            lobbyBtn.on('pointerdown', () => {
+                this.sound.play('sfx_click');
+                this.scene.start(SCENES.TITLE);
+            });
+        } else {
+            // オフライン: もう一杯 or タイトル
+            const retryBtn = this.add.rectangle(width / 2 - 120, btnY, 200, 50, GAME_CONFIG.COLORS.BTN_PRIMARY)
+                .setInteractive({ useHandCursor: true });
+            this.add.text(width / 2 - 120, btnY, '🍜 もう一杯！', {
+                fontSize: '18px', color: '#ffffff',
+            }).setOrigin(0.5);
+            retryBtn.on('pointerdown', () => {
+                this.sound.play('sfx_click');
+                this.scene.start(SCENES.CHAR_SELECT);
+            });
 
-        // タイトルへ
-        const titleBtn = this.add.rectangle(width / 2 + 120, btnY, 200, 50, 0x555555)
-            .setInteractive({ useHandCursor: true });
-        this.add.text(width / 2 + 120, btnY, '🏠 タイトルへ', {
-            fontSize: '18px', color: '#ffffff',
-        }).setOrigin(0.5);
-        titleBtn.on('pointerdown', () => {
-            this.sound.play('sfx_click');
-            this.scene.start(SCENES.TITLE);
-        });
+            const titleBtn = this.add.rectangle(width / 2 + 120, btnY, 200, 50, 0x555555)
+                .setInteractive({ useHandCursor: true });
+            this.add.text(width / 2 + 120, btnY, '🏠 タイトルへ', {
+                fontSize: '18px', color: '#ffffff',
+            }).setOrigin(0.5);
+            titleBtn.on('pointerdown', () => {
+                this.sound.play('sfx_click');
+                this.scene.start(SCENES.TITLE);
+            });
+        }
     }
 
     /** 紙吹雪パーティクル */
