@@ -1,6 +1,6 @@
 /**
  * TitleScene - タイトル画面
- * 「1人で練習」「オンライン対戦」の選択（Phase 1では1人で練習のみ）
+ * キービジュアル + 「1人で練習」「オンライン対戦」の選択
  */
 class TitleScene extends Phaser.Scene {
     constructor() {
@@ -16,33 +16,41 @@ class TitleScene extends Phaser.Scene {
         // 背景
         this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.4);
 
-        // タイトル
-        this.add.text(width / 2, 120, '🍜', { fontSize: '72px' }).setOrigin(0.5);
-        this.add.text(width / 2, 200, 'らーめん道', {
+        // キービジュアル
+        if (this.textures.exists('key_visual')) {
+            const kv = this.add.image(width / 2, 130, 'key_visual');
+            const kvScale = Math.min(200 / kv.width, 200 / kv.height);
+            kv.setScale(kvScale);
+        } else {
+            this.add.text(width / 2, 100, '🍜', { fontSize: '72px' }).setOrigin(0.5);
+        }
+
+        // タイトルテキスト
+        this.add.text(width / 2, 248, 'らーめん道', {
             fontSize: GAME_CONFIG.FONT.TITLE_SIZE,
             color: GAME_CONFIG.COLORS.TEXT_PRIMARY,
             fontFamily: GAME_CONFIG.FONT.FAMILY,
         }).setOrigin(0.5);
-        this.add.text(width / 2, 240, '～至高の一杯～', {
+        this.add.text(width / 2, 285, '～至高の一杯～', {
             fontSize: GAME_CONFIG.FONT.BODY_SIZE,
             color: GAME_CONFIG.COLORS.TEXT_ACCENT,
             fontFamily: GAME_CONFIG.FONT.FAMILY,
         }).setOrigin(0.5);
 
         // 1人で練習ボタン
-        this.createButton(width / 2, 340, '🎮 1人で練習', () => {
+        this.createButton(width / 2, 360, '🎮 1人で練習', () => {
             this.registry.set(REGISTRY.PLAYER_COUNT, 3);
             this.registry.set('onlineMode', false);
             this.scene.start(SCENES.CHAR_SELECT);
         });
 
         // オンライン対戦ボタン
-        this.createButton(width / 2, 430, '🌐 オンライン対戦', () => {
+        this.createButton(width / 2, 435, '🌐 オンライン対戦', () => {
             this.scene.start(SCENES.LOBBY);
         });
 
         // 遊び方ボタン（テキストリンク風）
-        const ruleBtn = this.add.text(width / 2, 500, '📖 遊び方・ルール説明', {
+        const ruleBtn = this.add.text(width / 2, 505, '📖 遊び方・ルール説明', {
             fontSize: '18px',
             color: '#ff6b35',
             fontFamily: GAME_CONFIG.FONT.FAMILY,
@@ -55,7 +63,7 @@ class TitleScene extends Phaser.Scene {
         });
 
         // バージョン表示
-        this.add.text(width / 2, height - 30, 'v0.3.0 - Online', {
+        this.add.text(width / 2, height - 30, 'v0.4.0', {
             fontSize: '14px',
             color: '#666666',
         }).setOrigin(0.5);

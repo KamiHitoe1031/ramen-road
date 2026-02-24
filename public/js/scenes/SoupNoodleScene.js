@@ -89,6 +89,8 @@ class SoupNoodleScene extends Phaser.Scene {
             const bowlImg = this.add.image(x, y - 30, soup.spriteKey)
                 .setDisplaySize(100, 100)
                 .setInteractive({ useHandCursor: true });
+            const baseScaleX = bowlImg.scaleX;
+            const baseScaleY = bowlImg.scaleY;
 
             this.add.text(x, y + 40, soup.name, {
                 fontSize: '20px', color: GAME_CONFIG.COLORS.TEXT_PRIMARY,
@@ -105,8 +107,8 @@ class SoupNoodleScene extends Phaser.Scene {
                 this.selectSoup(soup.id);
             });
 
-            bowlImg.on('pointerover', () => bowlImg.setScale(1.15));
-            bowlImg.on('pointerout', () => bowlImg.setScale(1));
+            bowlImg.on('pointerover', () => bowlImg.setScale(baseScaleX * 1.15, baseScaleY * 1.15));
+            bowlImg.on('pointerout', () => bowlImg.setScale(baseScaleX, baseScaleY));
         });
     }
 

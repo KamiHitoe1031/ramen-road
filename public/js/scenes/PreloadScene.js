@@ -64,6 +64,7 @@ class PreloadScene extends Phaser.Scene {
         this.load.image('ui_btn_large', 'assets/images/ui/ui_btn_large.png');
         this.load.image('ui_btn_small', 'assets/images/ui/ui_btn_small.png');
         this.load.image('ui_card_back', 'assets/images/ui/ui_card_back.png');
+        this.load.image('key_visual', 'assets/images/ui/key_visual.png');
 
         // 丼
         this.load.image('bowl_tonkotsu', 'assets/images/soup/bowl_tonkotsu.png');
