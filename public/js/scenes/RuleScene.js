@@ -1,6 +1,6 @@
 /**
- * RuleScene - ゲームルールを実際のカード・画像で解説
- * 複数ページをスワイプ/ボタンで切り替え
+ * RuleScene - ゲームルール・世界観・データ一覧を詳細に解説
+ * スクロール型の複数ページ構成
  */
 class RuleScene extends Phaser.Scene {
     constructor() {
@@ -9,756 +9,813 @@ class RuleScene extends Phaser.Scene {
 
     init() {
         this.currentPage = 0;
-        this.totalPages = 6;
+        this.totalPages = 10;
     }
 
     create() {
         const { width, height } = this.cameras.main;
-
-        // BGM
-        window.bgmManager.play(this, BGM_MAP[SCENES.TITLE]);
-
-        // 背景
-        this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.3);
-
-        // コンテンツコンテナ（ページ切り替え用）
+        window.bgmManager.play(this, BGM_MAP[SCENES.RULE]);
+        this.add.image(width / 2, height / 2, 'bg_table').setDisplaySize(width, height).setAlpha(0.25);
         this.contentContainer = this.add.container(0, 0);
-
-        // ナビゲーション（固定）
         this.createNavigation();
-
-        // 最初のページ表示
         this.showPage(0);
     }
 
     createNavigation() {
         const { width, height } = this.cameras.main;
+        // ナビバー背景
+        this.add.rectangle(width / 2, height - 20, width, 40, 0x1a1a2e, 0.9).setDepth(99);
 
-        // 戻るボタン（タイトルへ）
-        const backBtn = this.add.text(20, height - 28, '← タイトルへ', {
-            fontSize: '14px', color: '#ff6b35',
+        const backBtn = this.add.text(20, height - 22, '← タイトルへ', {
+            fontSize: '13px', color: '#ff6b35',
         }).setInteractive({ useHandCursor: true }).setDepth(100);
-        backBtn.on('pointerdown', () => {
-            this.sound.play('sfx_click');
-            this.scene.start(SCENES.TITLE);
-        });
+        backBtn.on('pointerdown', () => { this.sound.play('sfx_click'); this.scene.start(SCENES.TITLE); });
 
-        // ページ送り
-        this.prevBtn = this.add.text(width / 2 - 120, height - 28, '◀ 前へ', {
-            fontSize: '16px', color: '#f5e6ca',
+        this.prevBtn = this.add.text(width / 2 - 130, height - 22, '◀ 前へ', {
+            fontSize: '15px', color: '#f5e6ca',
         }).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(100);
         this.prevBtn.on('pointerdown', () => this.changePage(-1));
 
-        this.nextBtn = this.add.text(width / 2 + 120, height - 28, '次へ ▶', {
-            fontSize: '16px', color: '#f5e6ca',
+        this.nextBtn = this.add.text(width / 2 + 130, height - 22, '次へ ▶', {
+            fontSize: '15px', color: '#f5e6ca',
         }).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(100);
         this.nextBtn.on('pointerdown', () => this.changePage(1));
 
-        this.pageText = this.add.text(width / 2, height - 28, '', {
-            fontSize: '14px', color: '#888',
+        this.pageText = this.add.text(width / 2, height - 22, '', {
+            fontSize: '13px', color: '#888',
         }).setOrigin(0.5).setDepth(100);
     }
 
-    changePage(delta) {
-        const newPage = this.currentPage + delta;
-        if (newPage < 0 || newPage >= this.totalPages) return;
+    changePage(d) {
+        const n = this.currentPage + d;
+        if (n < 0 || n >= this.totalPages) return;
         this.sound.play('sfx_click');
-        this.showPage(newPage);
+        this.showPage(n);
     }
 
-    showPage(pageIndex) {
-        this.currentPage = pageIndex;
+    showPage(i) {
+        this.currentPage = i;
         this.contentContainer.removeAll(true);
-
-        // ページ描画
-        switch (pageIndex) {
-            case 0: this.page_overview(); break;
-            case 1: this.page_soupNoodle(); break;
-            case 2: this.page_ingredients(); break;
-            case 3: this.page_draft(); break;
-            case 4: this.page_placement(); break;
-            case 5: this.page_scoring(); break;
-        }
-
-        // ナビ更新
-        this.pageText.setText(`${pageIndex + 1} / ${this.totalPages}`);
-        this.prevBtn.setAlpha(pageIndex === 0 ? 0.3 : 1);
-        this.nextBtn.setAlpha(pageIndex === this.totalPages - 1 ? 0.3 : 1);
+        const pages = [
+            'page_story', 'page_flow', 'page_soupNoodle', 'page_ingredients',
+            'page_draft', 'page_placement', 'page_scoringBase',
+            'page_characters', 'page_customers', 'page_titles',
+        ];
+        this[pages[i]]();
+        this.pageText.setText(`${i + 1} / ${this.totalPages}`);
+        this.prevBtn.setAlpha(i === 0 ? 0.3 : 1);
+        this.nextBtn.setAlpha(i === this.totalPages - 1 ? 0.3 : 1);
     }
 
-    // ============================
-    // Page 0: ゲーム全体の流れ
-    // ============================
-    page_overview() {
+    // ============================================================
+    // Page 0: 世界観・フレーバー
+    // ============================================================
+    page_story() {
         const { width } = this.cameras.main;
         const c = this.contentContainer;
+        this._title(c, '🍜 らーめん道 ～至高の一杯～');
 
-        this._title(c, '🍜 らーめん道 ～遊び方～');
-
-        const steps = [
-            { emoji: '👨‍🍳', label: 'キャラ選択', desc: '6人のラーメン屋から1人選ぶ' },
-            { emoji: '🍲', label: 'スープ選択', desc: '豚骨・醤油・味噌・塩から1つ' },
-            { emoji: '🍜', label: '麺を選択', desc: '細麺・ちぢれ麺・太麺から1つ' },
-            { emoji: '🥩', label: 'ドラフト', desc: '具材カードを取り合い（9枚集める）' },
-            { emoji: '🎨', label: '盛り付け', desc: '3×3の丼に具材を配置（60秒）' },
-            { emoji: '🏆', label: '採点＆結果', desc: '味・彩り・相性で点数が決まる！' },
+        const lines = [
+            '',
+            '年に一度、全国のラーメン職人が腕を競い合う',
+            '伝説の大会「らーめん道グランプリ」。',
+            '',
+            'テレビカメラが並ぶ特設スタジアムに集った',
+            '腕自慢の職人たちが、己の信じた至高の一杯で',
+            '頂点を目指す。',
+            '',
+            'スープを選び、麺を合わせ、具材を取り合い、',
+            '3×3の丼に盛り付ける。',
+            '',
+            'しかし、どんなに美味いラーメンを作っても',
+            '審査員の好みに合わなければ高得点は得られない。',
+            '味だけではない。彩り、配置の美学、',
+            'そしてライバルとの駆け引きが勝敗を分ける。',
+            '',
+            'さあ、あなたも暖簾をくぐり、',
+            '「らーめん道」の頂を掴め！',
         ];
 
-        steps.forEach((step, i) => {
-            const x = width / 2;
-            const y = 80 + i * 72;
-
-            // ステップ番号
-            const numBg = this.add.circle(x - 260, y, 18, 0xff6b35);
-            c.add(numBg);
-            const numText = this.add.text(x - 260, y, `${i + 1}`, {
-                fontSize: '16px', color: '#fff', fontStyle: 'bold',
+        let y = 55;
+        lines.forEach(line => {
+            if (line === '') { y += 8; return; }
+            const isHighlight = line.includes('らーめん道グランプリ') || line.includes('至高の一杯');
+            const t = this.add.text(width / 2, y, line, {
+                fontSize: isHighlight ? '16px' : '14px',
+                color: isHighlight ? '#ffd700' : '#ddd',
+                fontStyle: isHighlight ? 'bold' : '',
             }).setOrigin(0.5);
-            c.add(numText);
-
-            // 絵文字
-            const emojiText = this.add.text(x - 220, y, step.emoji, { fontSize: '28px' }).setOrigin(0.5);
-            c.add(emojiText);
-
-            // ラベル
-            const labelText = this.add.text(x - 190, y - 12, step.label, {
-                fontSize: '18px', color: '#f5e6ca', fontStyle: 'bold',
-            });
-            c.add(labelText);
-            const descText = this.add.text(x - 190, y + 10, step.desc, {
-                fontSize: '13px', color: '#999',
-            });
-            c.add(descText);
-
-            // 矢印（最後以外）
-            if (i < steps.length - 1) {
-                const arrow = this.add.text(x - 260, y + 36, '↓', {
-                    fontSize: '16px', color: '#555',
-                }).setOrigin(0.5);
-                c.add(arrow);
-            }
+            c.add(t);
+            y += 22;
         });
 
-        // ヒント
-        const hint = this.add.text(width / 2, 530, '具材の組み合わせ・配置・キャラボーナスの掛け算で\n高得点を目指そう！', {
-            fontSize: '14px', color: '#ff6b35', align: 'center',
-        }).setOrigin(0.5);
-        c.add(hint);
+        // キービジュアル（あれば）
+        if (this.textures.exists('key_visual')) {
+            const kv = this.add.image(width / 2, y + 50, 'key_visual');
+            const s = Math.min(160 / kv.width, 120 / kv.height);
+            kv.setScale(s).setAlpha(0.8);
+            c.add(kv);
+        }
     }
 
-    // ============================
-    // Page 1: スープ×麺の相性
-    // ============================
+    // ============================================================
+    // Page 1: ゲームの流れ
+    // ============================================================
+    page_flow() {
+        const { width } = this.cameras.main;
+        const c = this.contentContainer;
+        this._title(c, '📋 ゲームの流れ');
+
+        const steps = [
+            { n: '1', emoji: '👨‍🍳', title: 'キャラ選択（15秒）', desc: '6人のラーメン職人から1人を選ぶ。\n職人ごとに得意なスタイル・ボーナス条件が異なる。' },
+            { n: '2', emoji: '🍲', title: 'スープ選択（10秒）', desc: '豚骨・醤油・味噌・塩の4種から選択。\n麺との相性で基本点が変わる。' },
+            { n: '3', emoji: '🍜', title: '麺選択（10秒）', desc: '細麺・ちぢれ麺・太麺の3種から選択。\nスープとの相性が表示される。' },
+            { n: '4', emoji: '🃏', title: 'ドラフト（各15秒 × 9回）', desc: '具材カードを寿司ゴー方式で取り合い。\n1枚選んで残りを隣へ回す。これを9回繰り返す。' },
+            { n: '5', emoji: '🎨', title: '盛り付け（60秒）', desc: '獲得した具材を3×3の丼に自由に配置。\n隣接・彩り・中央ボーナスを狙う。' },
+            { n: '6', emoji: '📊', title: '採点', desc: '4つのレイヤーで採点。基本ルール→キャラボーナス\n→審査員評価→称号ボーナスの順に加算。' },
+        ];
+
+        let y = 52;
+        steps.forEach(s => {
+            const bg = this.add.rectangle(width / 2, y + 22, 700, 58, 0x2a1a0e, 0.5)
+                .setStrokeStyle(1, 0x8b6914, 0.3);
+            c.add(bg);
+            const numBg = this.add.circle(50, y + 22, 16, 0xff6b35);
+            c.add(numBg);
+            const num = this.add.text(50, y + 22, s.n, { fontSize: '14px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
+            c.add(num);
+            const emoji = this.add.text(80, y + 22, s.emoji, { fontSize: '22px' }).setOrigin(0.5);
+            c.add(emoji);
+            const title = this.add.text(100, y + 8, s.title, { fontSize: '15px', color: '#f5e6ca', fontStyle: 'bold' });
+            c.add(title);
+            const desc = this.add.text(100, y + 26, s.desc, { fontSize: '11px', color: '#999' });
+            c.add(desc);
+            y += 72;
+        });
+
+        const tip = this.add.text(width / 2, y + 10, '💡 最も合計点が高いプレイヤーが優勝！', {
+            fontSize: '14px', color: '#ffd700', fontStyle: 'bold',
+        }).setOrigin(0.5);
+        c.add(tip);
+    }
+
+    // ============================================================
+    // Page 2: スープ × 麺の相性
+    // ============================================================
     page_soupNoodle() {
         const { width } = this.cameras.main;
         const c = this.contentContainer;
         const scoring = this.registry.get('data_scoring');
         const soups = this.registry.get('data_soups');
         const noodles = this.registry.get('data_noodles');
-
         this._title(c, '🍲 スープ × 麺の相性');
 
-        const subtext = this.add.text(width / 2, 60, '選んだスープと麺の組み合わせで基本点が決まる！', {
-            fontSize: '13px', color: '#999',
+        const sub = this.add.text(width / 2, 55, 'スープと麺の組み合わせで基本点（0〜4点）が決まる', {
+            fontSize: '12px', color: '#999',
         }).setOrigin(0.5);
-        c.add(subtext);
+        c.add(sub);
 
-        // 丼画像を横に並べる
+        // 丼画像
         soups.forEach((soup, i) => {
             const x = 130 + i * 150;
-            const bowlImg = this.add.image(x, 120, soup.spriteKey).setDisplaySize(60, 60);
-            c.add(bowlImg);
-            const name = this.add.text(x, 158, soup.name, {
-                fontSize: '14px', color: '#f5e6ca',
-            }).setOrigin(0.5);
-            c.add(name);
+            const img = this.add.image(x, 110, soup.spriteKey).setDisplaySize(56, 56);
+            c.add(img);
+            const n = this.add.text(x, 146, soup.name, { fontSize: '13px', color: '#f5e6ca' }).setOrigin(0.5);
+            c.add(n);
+            const d = this.add.text(x, 160, soup.description, { fontSize: '9px', color: '#777', wordWrap: { width: 130 }, align: 'center' }).setOrigin(0.5, 0);
+            c.add(d);
         });
 
-        // 相性テーブル
-        const tableY = 195;
-        const cellW = 150, cellH = 50;
-        const startX = 130;
-
-        // 麺ヘッダ
+        // テーブル
+        const tY = 195, cW = 150, cH = 46, sX = 130;
         noodles.forEach((noodle, j) => {
-            const y = tableY + j * cellH;
-            const nLabel = this.add.text(30, y + cellH / 2, `🍜 ${noodle.name}`, {
-                fontSize: '14px', color: '#f5e6ca',
-            }).setOrigin(0, 0.5);
-            c.add(nLabel);
+            const y = tY + j * cH;
+            const nl = this.add.text(25, y + cH / 2, `🍜 ${noodle.name}`, { fontSize: '13px', color: '#f5e6ca' }).setOrigin(0, 0.5);
+            c.add(nl);
         });
 
-        // セル
         soups.forEach((soup, i) => {
             noodles.forEach((noodle, j) => {
-                const x = startX + i * cellW;
-                const y = tableY + j * cellH;
+                const x = sX + i * cW;
+                const y = tY + j * cH;
                 const score = scoring.soupNoodleCompatibility[soup.id][noodle.id];
-
                 const bgColor = score >= 4 ? 0x27ae60 : score >= 3 ? 0x2ecc71 : score >= 2 ? 0xf1c40f : score >= 1 ? 0x95a5a6 : 0x555555;
-                const cellBg = this.add.rectangle(x, y + cellH / 2, cellW - 8, cellH - 6, bgColor, 0.3)
-                    .setStrokeStyle(1, bgColor, 0.6);
-                c.add(cellBg);
-
-                const stars = score >= 4 ? '★★★★' : score >= 3 ? '★★★' : score >= 2 ? '★★' : score >= 1 ? '★' : '−';
-                const scoreText = this.add.text(x, y + cellH / 2 - 8, `+${score}点`, {
-                    fontSize: '16px', color: '#fff', fontStyle: 'bold',
-                }).setOrigin(0.5);
-                c.add(scoreText);
-                const starText = this.add.text(x, y + cellH / 2 + 10, stars, {
-                    fontSize: '11px', color: score >= 3 ? '#ffd700' : '#888',
-                }).setOrigin(0.5);
-                c.add(starText);
+                const bg = this.add.rectangle(x, y + cH / 2, cW - 6, cH - 4, bgColor, 0.25).setStrokeStyle(1, bgColor, 0.5);
+                c.add(bg);
+                const stars = '★'.repeat(score) + '☆'.repeat(4 - score);
+                const st = this.add.text(x, y + cH / 2 - 6, `+${score}点`, { fontSize: '15px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
+                c.add(st);
+                const ss = this.add.text(x, y + cH / 2 + 10, stars, { fontSize: '10px', color: score >= 3 ? '#ffd700' : '#666' }).setOrigin(0.5);
+                c.add(ss);
             });
         });
 
-        // ポイント解説
-        const tip = this.add.text(width / 2, 380, '💡 最高相性（+4点）: 豚骨×細麺、味噌×ちぢれ麺', {
-            fontSize: '14px', color: '#ff6b35',
+        // ご当地セット
+        let y = 350;
+        const setTitle = this.add.text(width / 2, y, '🗾 ご当地セット（揃えるとボーナス称号！）', {
+            fontSize: '14px', color: '#ffd700', fontStyle: 'bold',
         }).setOrigin(0.5);
-        c.add(tip);
+        c.add(setTitle);
+        y += 24;
 
-        // ご当地セット紹介
-        const setY = 420;
         const sets = scoring.regionalSets;
-        const setNames = Object.keys(sets);
-        const setLabel = this.add.text(width / 2, setY, '🗾 ご当地セット（揃えるとボーナス！）', {
-            fontSize: '15px', color: '#ffd700', fontStyle: 'bold',
-        }).setOrigin(0.5);
-        c.add(setLabel);
-
-        setNames.forEach((key, i) => {
+        Object.keys(sets).forEach(key => {
             const set = sets[key];
-            const soupName = soups.find(s => s.id === set.soup)?.name || set.soup;
-            const noodleName = noodles.find(n => n.id === set.noodle)?.name || set.noodle;
-            const y = setY + 28 + i * 22;
-            const text = this.add.text(width / 2, y,
-                `${set.name}: ${soupName} + ${noodleName} + 具材${set.min}種`, {
-                    fontSize: '12px', color: '#ccc',
-                }).setOrigin(0.5);
-            c.add(text);
+            const soupN = soups.find(s => s.id === set.soup)?.name;
+            const noodleN = noodles.find(n => n.id === set.noodle)?.name;
+            const poolNames = set.pool.map(id => {
+                const ing = this.registry.get('data_ingredients').find(i => i.id === id);
+                return ing ? ing.name : id;
+            }).join('・');
+            const t = this.add.text(width / 2, y, `${set.name}: ${soupN}＋${noodleN}＋[${poolNames}]から${set.min}種`, {
+                fontSize: '11px', color: '#ccc',
+            }).setOrigin(0.5);
+            c.add(t);
+            y += 20;
+        });
+
+        // 麺説明
+        y += 12;
+        noodles.forEach(n => {
+            const t = this.add.text(width / 2, y, `🍜 ${n.name}: ${n.description}`, {
+                fontSize: '11px', color: '#aaa',
+            }).setOrigin(0.5);
+            c.add(t);
+            y += 18;
         });
     }
 
-    // ============================
-    // Page 2: 具材一覧
-    // ============================
+    // ============================================================
+    // Page 3: 具材一覧
+    // ============================================================
     page_ingredients() {
         const { width } = this.cameras.main;
         const c = this.contentContainer;
         const ingredients = this.registry.get('data_ingredients');
+        this._title(c, '🥩 具材カード一覧（全18種 / 39枚）');
 
-        this._title(c, '🥩 具材カード（全18種）');
-
-        const subtext = this.add.text(width / 2, 58, 'ドラフトでこれらのカードを取り合う！色の種類が多いほど高得点', {
-            fontSize: '12px', color: '#999',
+        const sub = this.add.text(width / 2, 52, 'ドラフトで取り合うカード。色タグの種類が多いほど彩りボーナスUP', {
+            fontSize: '11px', color: '#999',
         }).setOrigin(0.5);
-        c.add(subtext);
+        c.add(sub);
 
-        // 6列×3行でカード表示
+        // カテゴリ別に色分け
+        const catColors = { meat: '#e74c3c', egg: '#f1c40f', vegetable: '#27ae60', seafood: '#3498db', topping: '#9b59b6' };
+        const catNames = { meat: '肉', egg: '卵', vegetable: '野菜', seafood: '海鮮', topping: 'トッピング' };
+
         const cols = 6;
-        const cardW = 68, cardH = 82, gapX = 10, gapY = 10;
+        const cardW = 65, cardH = 72, gapX = 8, gapY = 42;
         const totalW = cols * (cardW + gapX) - gapX;
         const offsetX = (width - totalW) / 2 + cardW / 2;
-        const startY = 90;
+        const startY = 82;
 
-        ingredients.forEach((ing, i) => {
-            const col = i % cols;
-            const row = Math.floor(i / cols);
+        ingredients.forEach((ing, idx) => {
+            const col = idx % cols;
+            const row = Math.floor(idx / cols);
             const x = offsetX + col * (cardW + gapX);
-            const y = startY + row * (cardH + gapY + 36);
+            const y = startY + row * (cardH + gapY);
 
-            // カード背景
-            const bg = this.add.rectangle(x, y, cardW, cardH, GAME_CONFIG.COLORS.CARD_BG)
-                .setStrokeStyle(2, GAME_CONFIG.COLORS.CARD_BORDER);
+            const bg = this.add.rectangle(x, y, cardW, cardH, GAME_CONFIG.COLORS.CARD_BG).setStrokeStyle(2, GAME_CONFIG.COLORS.CARD_BORDER);
             c.add(bg);
 
             // 色タグ帯
             const colorHex = GAME_CONFIG.COLOR_TAG_MAP[ing.colorTag] || 0x888888;
-            const bar = this.add.rectangle(x, y - cardH / 2 + 8, cardW - 4, 14, colorHex);
+            const bar = this.add.rectangle(x, y - cardH / 2 + 7, cardW - 2, 12, colorHex);
             c.add(bar);
 
-            // 具材画像
-            const img = this.add.image(x, y - 6, ing.spriteKey).setDisplaySize(34, 34);
+            // 画像
+            const img = this.add.image(x, y - 4, ing.spriteKey).setDisplaySize(30, 30);
             c.add(img);
 
-            // 具材名
-            const nameText = this.add.text(x, y + 24, ing.name, {
-                fontSize: '9px', color: '#333',
-            }).setOrigin(0.5);
-            c.add(nameText);
-
-            // カテゴリ
-            const catEmoji = GAME_CONFIG.CATEGORY_EMOJI[ing.category] || '';
-            const catText = this.add.text(x, y + 36, catEmoji, { fontSize: '10px' }).setOrigin(0.5);
-            c.add(catText);
+            // 名前
+            const nameT = this.add.text(x, y + 22, ing.name, { fontSize: '9px', color: '#333' }).setOrigin(0.5);
+            c.add(nameT);
 
             // 枚数
-            const countText = this.add.text(x + cardW / 2 - 4, y - cardH / 2 + 4, `×${ing.cardCount}`, {
-                fontSize: '9px', color: '#666',
-            }).setOrigin(1, 0);
-            c.add(countText);
+            const cnt = this.add.text(x + cardW / 2 - 3, y - cardH / 2 + 3, `×${ing.cardCount}`, { fontSize: '8px', color: '#666' }).setOrigin(1, 0);
+            c.add(cnt);
+
+            // カテゴリ＋色タグ（カード下）
+            const catT = this.add.text(x, y + cardH / 2 + 8,
+                `${catNames[ing.category]}・${ing.colorTag}`, {
+                    fontSize: '8px', color: catColors[ing.category] || '#888',
+                }).setOrigin(0.5);
+            c.add(catT);
+
+            // 地域タグ
+            if (ing.regionTags.length > 0) {
+                const regT = this.add.text(x, y + cardH / 2 + 18,
+                    ing.regionTags.map(r => {
+                        const rn = { hakata: '博多', sapporo: '札幌', tokyo: '東京', hakodate: '函館' };
+                        return rn[r] || r;
+                    }).join('/'), {
+                        fontSize: '7px', color: '#888',
+                    }).setOrigin(0.5);
+                c.add(regT);
+            }
         });
 
         // 凡例
-        const legendY = 478;
-        const cats = [
-            { emoji: '🥩', label: '肉' }, { emoji: '🥚', label: '卵' },
-            { emoji: '🥬', label: '野菜' }, { emoji: '🌊', label: '海鮮' },
-            { emoji: '🎭', label: 'トッピング' },
-        ];
-        cats.forEach((cat, i) => {
-            const lx = 80 + i * 140;
-            const lt = this.add.text(lx, legendY, `${cat.emoji} ${cat.label}`, {
-                fontSize: '13px', color: '#ccc',
-            });
+        const legY = 475;
+        let legX = 50;
+        Object.entries(catNames).forEach(([key, name]) => {
+            const dot = this.add.circle(legX, legY, 5, Phaser.Display.Color.HexStringToColor(catColors[key]).color);
+            c.add(dot);
+            const lt = this.add.text(legX + 10, legY, name, { fontSize: '11px', color: '#ccc' }).setOrigin(0, 0.5);
             c.add(lt);
+            legX += 75;
         });
 
-        // 色の説明
-        const colorNote = this.add.text(width / 2, legendY + 28,
-            '帯の色 = カードの「色タグ」→ 彩りボーナスに影響（5色以上で+8点！）', {
-                fontSize: '12px', color: '#ff6b35',
+        const colorNote = this.add.text(width / 2, legY + 22,
+            '色タグ全7種: 赤/緑/黄/白/茶/黒/ピンク → 5色以上で彩りボーナス+8点！', {
+                fontSize: '11px', color: '#ff6b35',
             }).setOrigin(0.5);
         c.add(colorNote);
+
+        const totalNote = this.add.text(width / 2, legY + 40,
+            'カードプール合計39枚。3人戦:各10枚配布(9枚獲得) / 4人戦:各9枚配布(9枚獲得)', {
+                fontSize: '10px', color: '#888',
+            }).setOrigin(0.5);
+        c.add(totalNote);
     }
 
-    // ============================
-    // Page 3: ドラフトの仕組み
-    // ============================
+    // ============================================================
+    // Page 4: ドラフトの仕組み
+    // ============================================================
     page_draft() {
         const { width } = this.cameras.main;
         const c = this.contentContainer;
-
         this._title(c, '🃏 ドラフト（寿司ゴー方式）');
 
-        // ステップ図解
+        const desc = this.add.text(width / 2, 55,
+            '全員に手札が配られ、1枚選んで残りを左隣へ回す。これを9回繰り返す。', {
+                fontSize: '12px', color: '#999',
+            }).setOrigin(0.5);
+        c.add(desc);
+
         const steps = [
-            { y: 75, label: '① 手札が配られる',
-              desc: '3人戦: 10枚 / 4人戦: 9枚' },
-            { y: 145, label: '② 1枚選んで取る',
-              desc: '欲しいカードを1枚だけ獲得！' },
-            { y: 215, label: '③ 残りを左隣に回す',
-              desc: '全員同時に手札を左隣のプレイヤーへ' },
-            { y: 285, label: '④ 新しい手札から1枚選ぶ',
-              desc: '②〜③を9回繰り返し → 9枚の手札完成！' },
+            { title: '① 手札が配られる', desc: '3人戦: 10枚 / 4人戦: 9枚が各プレイヤーに配られる。\nカードプール39枚からランダムに振り分け。' },
+            { title: '② 1枚を選んで獲得', desc: '手札を見て、欲しいカード1枚を選ぶ（制限時間15秒）。\n選んだカードは自分の獲得カードになる。' },
+            { title: '③ 残りを左隣へ回す', desc: '選ばなかった手札を全て左隣のプレイヤーへ渡す。\n同時に、右隣のプレイヤーから新しい手札が届く。' },
+            { title: '④ これを9回繰り返す', desc: '毎回少しずつ手札が減っていく。\n最終的に全員が9枚のカードを獲得する。' },
         ];
 
-        steps.forEach((step) => {
-            const bg = this.add.rectangle(width / 2, step.y + 15, 550, 55, 0x3a2a1a, 0.6)
-                .setStrokeStyle(1, 0x8b6914, 0.5);
+        let y = 85;
+        steps.forEach(s => {
+            const bg = this.add.rectangle(width / 2, y + 26, 650, 60, 0x2a1a0e, 0.5).setStrokeStyle(1, 0x8b6914, 0.3);
             c.add(bg);
-
-            const label = this.add.text(60, step.y, step.label, {
-                fontSize: '18px', color: '#f5e6ca', fontStyle: 'bold',
-            });
-            c.add(label);
-            const desc = this.add.text(60, step.y + 24, step.desc, {
-                fontSize: '13px', color: '#999',
-            });
-            c.add(desc);
+            const t = this.add.text(60, y + 10, s.title, { fontSize: '15px', color: '#f5e6ca', fontStyle: 'bold' });
+            c.add(t);
+            const d = this.add.text(60, y + 30, s.desc, { fontSize: '11px', color: '#999' });
+            c.add(d);
+            y += 76;
         });
 
-        // カード回転の図解
-        const circleY = 400;
-        const circleR = 70;
-        const players = ['あなた', 'プレイヤーB', 'プレイヤーC'];
-        const angles = [-90, 30, 150]; // degrees
-
+        // 回転図
+        const circY = 420, circR = 60;
+        const players = ['あなた', 'Player B', 'Player C'];
+        const angles = [-90, 30, 150];
         players.forEach((name, i) => {
-            const angle = angles[i] * Math.PI / 180;
-            const px = width / 2 + Math.cos(angle) * circleR;
-            const py = circleY + Math.sin(angle) * circleR;
-
-            const dot = this.add.circle(px, py, 24, i === 0 ? 0xff6b35 : 0x3a2a1a)
-                .setStrokeStyle(2, 0x8b6914);
+            const a = angles[i] * Math.PI / 180;
+            const px = width / 2 + Math.cos(a) * circR;
+            const py = circY + Math.sin(a) * circR;
+            const dot = this.add.circle(px, py, 22, i === 0 ? 0xff6b35 : 0x3a2a1a).setStrokeStyle(2, 0x8b6914);
             c.add(dot);
-            const pText = this.add.text(px, py, name, {
-                fontSize: '10px', color: '#fff',
-            }).setOrigin(0.5);
-            c.add(pText);
+            const pt = this.add.text(px, py, name, { fontSize: '9px', color: '#fff' }).setOrigin(0.5);
+            c.add(pt);
         });
+        const arrow = this.add.text(width / 2, circY, '↻', { fontSize: '26px', color: '#ff6b35' }).setOrigin(0.5);
+        c.add(arrow);
+        const rl = this.add.text(width / 2, circY + 28, '手札が左へ回る', { fontSize: '11px', color: '#ff6b35' }).setOrigin(0.5);
+        c.add(rl);
 
-        // 回転矢印
-        const arrowText = this.add.text(width / 2, circleY, '↻', {
-            fontSize: '28px', color: '#ff6b35',
-        }).setOrigin(0.5);
-        c.add(arrowText);
-        const rotateLabel = this.add.text(width / 2, circleY + 30, '手札が回る！', {
-            fontSize: '13px', color: '#ff6b35',
-        }).setOrigin(0.5);
-        c.add(rotateLabel);
-
-        // コツ
-        const tips = this.add.text(width / 2, 520, '💡 コツ: 自分が欲しいカードだけでなく、\n相手に渡したくないカードを取る「カット」も戦略！', {
-            fontSize: '13px', color: '#ffd700', align: 'center',
+        const tips = this.add.text(width / 2, 530, '💡 自分が欲しいカードを取るか、相手に渡したくないカードをカットするか。\nドラフトの駆け引きが勝敗を左右する！', {
+            fontSize: '11px', color: '#ffd700', align: 'center',
         }).setOrigin(0.5);
         c.add(tips);
     }
 
-    // ============================
-    // Page 4: 盛り付け（配置ルール）
-    // ============================
+    // ============================================================
+    // Page 5: 盛り付けルール
+    // ============================================================
     page_placement() {
         const { width } = this.cameras.main;
         const c = this.contentContainer;
         const scoring = this.registry.get('data_scoring');
-
+        const ingredients = this.registry.get('data_ingredients');
         this._title(c, '🎨 盛り付け（3×3グリッド）');
 
         // グリッド例
-        const gridX = 180, gridY = 90;
-        const cellSize = 56, gap = 4;
-
-        // グリッド描画
-        for (let row = 0; row < 3; row++) {
+        const gX = 160, gY = 75, cs = 52, gap = 3;
+        for (let r = 0; r < 3; r++) {
             for (let col = 0; col < 3; col++) {
-                const cx = gridX + col * (cellSize + gap);
-                const cy = gridY + row * (cellSize + gap);
-                const isCenter = row === 1 && col === 1;
-                const rect = this.add.rectangle(cx, cy, cellSize, cellSize,
-                    isCenter ? 0x3a6b35 : GAME_CONFIG.COLORS.GRID_EMPTY, 0.6)
-                    .setStrokeStyle(2, isCenter ? 0xffd700 : 0x8b6914, 0.5);
+                const cx = gX + col * (cs + gap), cy = gY + r * (cs + gap);
+                const isC = r === 1 && col === 1;
+                const rect = this.add.rectangle(cx, cy, cs, cs, isC ? 0x3a6b35 : GAME_CONFIG.COLORS.GRID_EMPTY, 0.5)
+                    .setStrokeStyle(1, isC ? 0xffd700 : 0x8b6914, 0.4);
                 c.add(rect);
-                if (isCenter) {
-                    const centerLabel = this.add.text(cx, cy + cellSize / 2 + 8, '中央+1点', {
-                        fontSize: '9px', color: '#ffd700',
-                    }).setOrigin(0.5);
-                    c.add(centerLabel);
+                if (isC) {
+                    const cl = this.add.text(cx, cy + cs / 2 + 8, `中央+${scoring.centerBonus}点`, { fontSize: '8px', color: '#ffd700' }).setOrigin(0.5);
+                    c.add(cl);
                 }
             }
         }
 
-        // 配置例（サンプル具材をグリッドに置く）
-        const sampleGrid = [
-            ['ing_chashu', 'ing_negi', 'ing_nori'],
-            ['ing_nitamago', 'ing_menma', 'ing_horenso'],
-            ['ing_ebi', null, 'ing_corn'],
-        ];
-        sampleGrid.forEach((row, r) => {
-            row.forEach((spriteKey, col) => {
-                if (!spriteKey) return;
-                const cx = gridX + col * (cellSize + gap);
-                const cy = gridY + r * (cellSize + gap);
-                const img = this.add.image(cx, cy, spriteKey).setDisplaySize(38, 38);
+        const sample = [['ing_chashu', 'ing_negi', 'ing_nori'], ['ing_nitamago', 'ing_menma', null], ['ing_ebi', null, 'ing_corn']];
+        sample.forEach((row, r) => {
+            row.forEach((key, col) => {
+                if (!key) return;
+                const cx = gX + col * (cs + gap), cy = gY + r * (cs + gap);
+                const img = this.add.image(cx, cy, key).setDisplaySize(34, 34);
                 c.add(img);
             });
         });
 
-        // 隣接ボーナス解説（右側）
-        const infoX = 420;
-        let infoY = 80;
+        const placeNote = this.add.text(gX, gY + 3 * (cs + gap) + 16, '制限時間 60秒\n全9枚置かなくてもOK（空きマスも戦略）', {
+            fontSize: '10px', color: '#aaa', align: 'center',
+        }).setOrigin(0.5, 0);
+        c.add(placeNote);
 
-        const adj_title = this.add.text(infoX, infoY, '隣接ボーナス', {
-            fontSize: '16px', color: '#ffd700', fontStyle: 'bold',
-        });
-        c.add(adj_title);
-        infoY += 24;
+        // 右側: 採点要素
+        const infoX = 390;
+        let y = 55;
 
-        const goodLabel = this.add.text(infoX, infoY, '✅ 良い組み合わせ（+2点）:', {
-            fontSize: '12px', color: '#27ae60',
-        });
-        c.add(goodLabel);
-        infoY += 18;
-
-        const ingredients = this.registry.get('data_ingredients');
+        // 隣接ボーナス
         const ingMap = {};
         ingredients.forEach(i => { ingMap[i.id] = i; });
 
-        scoring.adjacencyGoodPairs.pairs.slice(0, 4).forEach((pair) => {
-            const a = ingMap[pair[0]]?.name || pair[0];
-            const b = ingMap[pair[1]]?.name || pair[1];
-            const pairText = this.add.text(infoX + 10, infoY, `${a} ↔ ${b}`, {
-                fontSize: '11px', color: '#ccc',
+        const adjT = this.add.text(infoX, y, '✅ 良い隣接（各+2点）', { fontSize: '13px', color: '#27ae60', fontStyle: 'bold' });
+        c.add(adjT);
+        y += 18;
+        scoring.adjacencyGoodPairs.pairs.forEach(pair => {
+            const a = ingMap[pair[0]]?.name || pair[0], b = ingMap[pair[1]]?.name || pair[1];
+            const t = this.add.text(infoX + 8, y, `${a} ↔ ${b}`, { fontSize: '11px', color: '#ccc' });
+            c.add(t);
+            y += 15;
+        });
+
+        y += 6;
+        const badT = this.add.text(infoX, y, '❌ 悪い隣接（各-1点）', { fontSize: '13px', color: '#e74c3c', fontStyle: 'bold' });
+        c.add(badT);
+        y += 18;
+        scoring.adjacencyBadPairs.pairs.forEach(pair => {
+            const a = ingMap[pair[0]]?.name || pair[0], b = ingMap[pair[1]]?.name || pair[1];
+            const t = this.add.text(infoX + 8, y, `${a} ↔ ${b}`, { fontSize: '11px', color: '#ccc' });
+            c.add(t);
+            y += 15;
+        });
+
+        y += 6;
+        const colT = this.add.text(infoX, y, '🌈 彩りボーナス（色タグの種類数）', { fontSize: '13px', color: '#ffd700', fontStyle: 'bold' });
+        c.add(colT);
+        y += 18;
+        [1, 2, 3, 4, 5, 6, 7].forEach(n => {
+            const pts = scoring.colorBonus[n];
+            const t = this.add.text(infoX + 8, y, `${n}色: +${pts}点${n >= 5 ? ' ★' : ''}`, {
+                fontSize: '11px', color: n >= 5 ? '#00ff00' : n >= 4 ? '#ffff00' : '#ccc',
             });
-            c.add(pairText);
-            infoY += 16;
-        });
-        const moreGood = this.add.text(infoX + 10, infoY, `…他${scoring.adjacencyGoodPairs.pairs.length - 4}組`, {
-            fontSize: '10px', color: '#888',
-        });
-        c.add(moreGood);
-        infoY += 22;
-
-        const badLabel = this.add.text(infoX, infoY, '❌ 悪い組み合わせ（-1点）:', {
-            fontSize: '12px', color: '#e74c3c',
-        });
-        c.add(badLabel);
-        infoY += 18;
-
-        scoring.adjacencyBadPairs.pairs.forEach((pair) => {
-            const a = ingMap[pair[0]]?.name || pair[0];
-            const b = ingMap[pair[1]]?.name || pair[1];
-            const pairText = this.add.text(infoX + 10, infoY, `${a} ↔ ${b}`, {
-                fontSize: '11px', color: '#ccc',
-            });
-            c.add(pairText);
-            infoY += 16;
+            c.add(t);
+            y += 14;
         });
 
-        // 彩りボーナス
-        infoY += 10;
-        const colorTitle = this.add.text(infoX, infoY, '🌈 彩りボーナス', {
-            fontSize: '14px', color: '#ffd700', fontStyle: 'bold',
+        y += 6;
+        const otherT = this.add.text(infoX, y, '⚠️ その他', { fontSize: '13px', color: '#ff6b35', fontStyle: 'bold' });
+        c.add(otherT);
+        y += 18;
+        const rules = [
+            `中央マスに配置: +${scoring.centerBonus}点`,
+            `同じ具材2枚以上: ${scoring.duplicatePenalty}点/枚`,
+            '空きマスも戦略（余白の美学称号など）',
+            '※隣接 = 上下左右に隣り合うマス',
+        ];
+        rules.forEach(r => {
+            const t = this.add.text(infoX + 8, y, r, { fontSize: '10px', color: '#aaa' });
+            c.add(t);
+            y += 14;
         });
-        c.add(colorTitle);
-        infoY += 22;
-
-        const colorData = scoring.colorBonus;
-        [2, 3, 4, 5].forEach(n => {
-            const ct = this.add.text(infoX + 10, infoY, `${n}色: +${colorData[n]}点`, {
-                fontSize: '12px', color: n >= 5 ? '#00ff00' : n >= 4 ? '#ffff00' : '#ccc',
-            });
-            c.add(ct);
-            infoY += 16;
-        });
-
-        // その他ルール
-        infoY += 8;
-        const otherTitle = this.add.text(infoX, infoY, '⚠️ 注意', {
-            fontSize: '13px', color: '#ff6b35',
-        });
-        c.add(otherTitle);
-        infoY += 20;
-        const dup = this.add.text(infoX + 10, infoY, '同じ具材2枚以上: -1点/枚', {
-            fontSize: '11px', color: '#e74c3c',
-        });
-        c.add(dup);
-        infoY += 16;
-        const blank = this.add.text(infoX + 10, infoY, '空きマスもOK（戦略的に使える！）', {
-            fontSize: '11px', color: '#ccc',
-        });
-        c.add(blank);
-
-        // 制限時間
-        const timerNote = this.add.text(width / 2, 540, '⏱ 制限時間: 60秒！ 時間切れで自動確定', {
-            fontSize: '14px', color: '#ff6b35',
-        }).setOrigin(0.5);
-        c.add(timerNote);
     }
 
-    // ============================
-    // Page 5: 採点の仕組み
-    // ============================
-    page_scoring() {
+    // ============================================================
+    // Page 6: 基本採点の仕組み
+    // ============================================================
+    page_scoringBase() {
         const { width } = this.cameras.main;
         const c = this.contentContainer;
-        const characters = this.registry.get('data_characters');
-        const customers = this.registry.get('data_customers');
-
-        this._title(c, '📊 採点（4つのレイヤー）');
+        this._title(c, '📊 採点システム（4レイヤー）');
 
         const layers = [
             {
-                label: 'L1: 基本ルール',
-                color: '#27ae60',
-                items: ['スープ×麺相性 (0〜4点)', '彩りボーナス (0〜8点)', '隣接Good/Bad (+2/-1)', '中央ボーナス (+1)', '重複ペナルティ (-1)'],
+                label: 'Layer 1: 基本ルール', color: '#27ae60', icon: '🍲',
+                items: [
+                    'スープ×麺の相性 (0〜4点)',
+                    '彩りボーナス: 色タグの種類数 (0〜8点)',
+                    '良い隣接ペア: 各+2点 (最大8組)',
+                    '悪い隣接ペア: 各-1点 (最大3組)',
+                    '中央マスボーナス: +1点',
+                    '重複ペナルティ: 同じ具材2枚以上で-1点/枚',
+                ],
             },
             {
-                label: 'L2: キャラボーナス',
-                color: '#3498db',
-                items: ['選んだキャラの得意分野', '条件達成で追加点 (最大+12点)'],
+                label: 'Layer 2: キャラボーナス', color: '#3498db', icon: '👨‍🍳',
+                items: [
+                    '選んだ職人のボーナス条件をチェック (最大+12点)',
+                    '例: ケンジ → 豚骨+3、細麺+2、紅しょうが+2 ...',
+                    '職人選びが戦略の第一歩！',
+                ],
             },
             {
-                label: 'L3: お客さん評価',
-                color: '#e67e22',
-                items: ['2人のお客さんが審査', '好みに合えば加点 (各最大+11点)'],
+                label: 'Layer 3: 審査員評価', color: '#e67e22', icon: '👥',
+                items: [
+                    '毎回ランダムに2人の審査員が登場',
+                    '審査員ごとに好みの条件がある (各最大+11点)',
+                    '全員に公開されるので、好みに合わせるかは自分次第',
+                    '⚠️ 審査員の好みに合わないと加点なし！',
+                ],
             },
             {
-                label: 'L4: 称号セレモニー',
-                color: '#9b59b6',
-                items: ['具沢山王、盛り付けの匠 等', '条件を満たせばボーナス (+3〜5点)'],
+                label: 'Layer 4: 称号セレモニー', color: '#9b59b6', icon: '🏆',
+                items: [
+                    '比較系: 最も○○なプレイヤーに称号 (各+4点)',
+                    '達成系: 条件を満たせば全員取得可能 (+3〜5点)',
+                    '例: 全部のせ(9マス埋め)、レインボー(6色以上) ...',
+                ],
             },
         ];
 
-        let y = 65;
-        layers.forEach((layer, i) => {
-            // レイヤーバー
-            const barW = 520;
-            const bg = this.add.rectangle(width / 2, y + 8, barW, 16 + layer.items.length * 16, 0x222222, 0.6)
-                .setStrokeStyle(1, Phaser.Display.Color.HexStringToColor(layer.color).color, 0.8);
+        let y = 52;
+        layers.forEach(layer => {
+            const h = 16 + layer.items.length * 14;
+            const bg = this.add.rectangle(width / 2, y + h / 2 + 6, 700, h + 8, 0x222222, 0.5)
+                .setStrokeStyle(1, Phaser.Display.Color.HexStringToColor(layer.color).color, 0.6);
             c.add(bg);
 
-            const title = this.add.text(60, y - 4, layer.label, {
-                fontSize: '15px', color: layer.color, fontStyle: 'bold',
+            const title = this.add.text(55, y, `${layer.icon} ${layer.label}`, {
+                fontSize: '14px', color: layer.color, fontStyle: 'bold',
             });
             c.add(title);
+            y += 18;
 
-            layer.items.forEach((item, j) => {
-                const itemText = this.add.text(80, y + 16 + j * 16, `• ${item}`, {
-                    fontSize: '12px', color: '#ccc',
-                });
-                c.add(itemText);
+            layer.items.forEach(item => {
+                const t = this.add.text(75, y, `• ${item}`, { fontSize: '11px', color: '#bbb' });
+                c.add(t);
+                y += 14;
             });
-
-            y += 28 + layer.items.length * 16;
+            y += 12;
         });
 
-        // キャラ紹介（小さく）
-        y += 8;
-        const charTitle = this.add.text(width / 2, y, '👨‍🍳 キャラクター（一部紹介）', {
-            fontSize: '14px', color: '#ffd700', fontStyle: 'bold',
-        }).setOrigin(0.5);
-        c.add(charTitle);
-        y += 24;
+        const formula = this.add.text(width / 2, y + 4,
+            '合計点 = L1(基本) + L2(キャラ) + L3(審査員) + L4(称号)', {
+                fontSize: '13px', color: '#ffd700', fontStyle: 'bold',
+            }).setOrigin(0.5);
+        c.add(formula);
+    }
 
-        characters.slice(0, 3).forEach((char, i) => {
-            const cx = 130 + i * 220;
-            const img = this.add.image(cx - 30, y + 10, char.spriteKey).setDisplaySize(40, 40);
+    // ============================================================
+    // Page 7: キャラクター一覧
+    // ============================================================
+    page_characters() {
+        const { width } = this.cameras.main;
+        const c = this.contentContainer;
+        const characters = this.registry.get('data_characters');
+        this._title(c, '👨‍🍳 ラーメン職人（全6人）');
+
+        const sub = this.add.text(width / 2, 50, '職人ごとにボーナス条件が異なる。得意スタイルに合った戦略を組もう！', {
+            fontSize: '11px', color: '#999',
+        }).setOrigin(0.5);
+        c.add(sub);
+
+        // 2列3行
+        characters.forEach((ch, idx) => {
+            const col = idx % 2;
+            const row = Math.floor(idx / 2);
+            const bx = col === 0 ? 200 : 600;
+            const by = 100 + row * 150;
+
+            // 背景
+            const bg = this.add.rectangle(bx, by + 10, 370, 130, 0x2a1a0e, 0.5).setStrokeStyle(1, 0x8b6914, 0.4);
+            c.add(bg);
+
+            // 画像
+            const img = this.add.image(bx - 155, by + 10, ch.spriteKey).setDisplaySize(48, 48);
             c.add(img);
-            const name = this.add.text(cx + 10, y, char.name, {
-                fontSize: '13px', color: '#f5e6ca', fontStyle: 'bold',
-            });
+
+            // 名前・スタイル
+            const name = this.add.text(bx - 120, by - 30, ch.name, { fontSize: '14px', color: '#f5e6ca', fontStyle: 'bold' });
             c.add(name);
-            const style = this.add.text(cx + 10, y + 16, char.playstyle || '', {
-                fontSize: '10px', color: '#999',
-            });
+            const style = this.add.text(bx - 120, by - 14, ch.playstyle, { fontSize: '10px', color: '#ff6b35' });
             c.add(style);
+            const quote = this.add.text(bx - 120, by, `「${ch.quote}」`, { fontSize: '9px', color: '#888', fontStyle: 'italic' });
+            c.add(quote);
+
+            // ボーナス条件
+            let bonusY = by + 16;
+            ch.bonuses.forEach(b => {
+                const t = this.add.text(bx - 120, bonusY, `+${b.points}  ${b.label}`, {
+                    fontSize: '10px', color: '#ccc',
+                });
+                c.add(t);
+                bonusY += 13;
+            });
+
+            // 最大ボーナス
+            const max = this.add.text(bx + 155, by - 30, `最大+${ch.maxBonus}`, {
+                fontSize: '11px', color: '#ffd700',
+            }).setOrigin(1, 0);
+            c.add(max);
         });
+    }
 
-        // お客さん紹介
-        y += 50;
-        const custTitle = this.add.text(width / 2, y, '👥 お客さん（毎回ランダム2人が審査）', {
-            fontSize: '14px', color: '#ffd700', fontStyle: 'bold',
-        }).setOrigin(0.5);
-        c.add(custTitle);
-        y += 24;
+    // ============================================================
+    // Page 8: 審査員一覧
+    // ============================================================
+    page_customers() {
+        const { width } = this.cameras.main;
+        const c = this.contentContainer;
+        const customers = this.registry.get('data_customers');
+        this._title(c, '👥 審査員（全10人 / 毎回ランダム2人）');
 
-        customers.slice(0, 4).forEach((cust, i) => {
-            const cx = 100 + i * 170;
-            const img = this.add.image(cx - 20, y + 8, cust.spriteKey).setDisplaySize(32, 32);
+        const sub = this.add.text(width / 2, 50,
+            '毎試合ランダムに2人が選ばれ全プレイヤーのラーメンを審査する。好みに合わせると高得点！', {
+                fontSize: '10px', color: '#999', wordWrap: { width: 700 }, align: 'center',
+            }).setOrigin(0.5);
+        c.add(sub);
+
+        // 2列5行
+        customers.forEach((cu, idx) => {
+            const col = idx % 2;
+            const row = Math.floor(idx / 2);
+            const bx = col === 0 ? 200 : 600;
+            const by = 82 + row * 88;
+
+            const bg = this.add.rectangle(bx, by + 6, 370, 78, 0x1a2a1e, 0.4).setStrokeStyle(1, 0x4a6a4e, 0.3);
+            c.add(bg);
+
+            const img = this.add.image(bx - 158, by + 6, cu.spriteKey).setDisplaySize(36, 36);
             c.add(img);
-            const name = this.add.text(cx + 8, y, cust.name, {
-                fontSize: '12px', color: '#f5e6ca',
-            });
+
+            const name = this.add.text(bx - 130, by - 18, `${cu.name}`, { fontSize: '12px', color: '#f5e6ca', fontStyle: 'bold' });
             c.add(name);
-            const type = this.add.text(cx + 8, y + 16, cust.type || '', {
-                fontSize: '10px', color: '#888',
-            });
+            const type = this.add.text(bx - 40, by - 18, `[${cu.type}]`, { fontSize: '10px', color: '#ff6b35' });
             c.add(type);
+            const q = this.add.text(bx - 130, by - 4, `「${cu.quote}」`, { fontSize: '9px', color: '#777', fontStyle: 'italic' });
+            c.add(q);
+
+            let bonusX = bx - 130;
+            let bonusY = by + 10;
+            cu.bonuses.forEach(b => {
+                const t = this.add.text(bonusX, bonusY, `+${b.points} ${b.label}`, { fontSize: '9px', color: '#aaa' });
+                c.add(t);
+                bonusY += 12;
+            });
+
+            const max = this.add.text(bx + 158, by - 18, `最大+${cu.maxBonus}`, { fontSize: '10px', color: '#ffd700' }).setOrigin(1, 0);
+            c.add(max);
+        });
+    }
+
+    // ============================================================
+    // Page 9: 称号一覧 + 管理者リンク
+    // ============================================================
+    page_titles() {
+        const { width } = this.cameras.main;
+        const c = this.contentContainer;
+        const titles = this.registry.get('data_titles');
+        this._title(c, '🏆 称号セレモニー');
+
+        const sub = this.add.text(width / 2, 50,
+            '採点後、条件を満たしたプレイヤーに称号が授与されボーナス点が加算される', {
+                fontSize: '11px', color: '#999',
+            }).setOrigin(0.5);
+        c.add(sub);
+
+        let y = 75;
+
+        // 比較系
+        const compT = this.add.text(50, y, '⚔️ 比較系（プレイヤー間で最も優れた者に授与）', {
+            fontSize: '13px', color: '#e67e22', fontStyle: 'bold',
+        });
+        c.add(compT);
+        y += 22;
+
+        titles.comparative.forEach(t => {
+            const bg = this.add.rectangle(width / 2, y + 10, 700, 36, 0x2a1a0e, 0.4).setStrokeStyle(1, 0x8b6914, 0.2);
+            c.add(bg);
+            const emoji = this.add.text(50, y + 10, t.emoji, { fontSize: '18px' }).setOrigin(0, 0.5);
+            c.add(emoji);
+            const name = this.add.text(80, y + 4, t.name, { fontSize: '13px', color: '#f5e6ca', fontStyle: 'bold' });
+            c.add(name);
+            const pts = this.add.text(200, y + 4, `+${t.points}点`, { fontSize: '12px', color: '#ffd700' });
+            c.add(pts);
+            const ann = this.add.text(260, y + 4, `「${t.announcement}」`, { fontSize: '10px', color: '#888' });
+            c.add(ann);
+            const cond = this.add.text(80, y + 20, this._conditionLabel(t.condition), { fontSize: '9px', color: '#777' });
+            c.add(cond);
+            y += 42;
         });
 
-        // 管理者リンク（最終ページに表示）
+        y += 8;
+
+        // 達成系
+        const achT = this.add.text(50, y, '🎯 達成系（条件を満たせば複数人が同時に取得可能）', {
+            fontSize: '13px', color: '#9b59b6', fontStyle: 'bold',
+        });
+        c.add(achT);
+        y += 22;
+
+        titles.achievement.forEach(t => {
+            const bg = this.add.rectangle(width / 2, y + 10, 700, 36, 0x1a1a2e, 0.4).setStrokeStyle(1, 0x6a4a8e, 0.2);
+            c.add(bg);
+            const emoji = this.add.text(50, y + 10, t.emoji, { fontSize: '18px' }).setOrigin(0, 0.5);
+            c.add(emoji);
+            const name = this.add.text(80, y + 4, t.name, { fontSize: '13px', color: '#f5e6ca', fontStyle: 'bold' });
+            c.add(name);
+            const pts = this.add.text(220, y + 4, `+${t.points}点`, { fontSize: '12px', color: '#ffd700' });
+            c.add(pts);
+            const ann = this.add.text(280, y + 4, `「${t.announcement}」`, { fontSize: '10px', color: '#888' });
+            c.add(ann);
+            const cond = this.add.text(80, y + 20, this._conditionLabel(t.condition), { fontSize: '9px', color: '#777' });
+            c.add(cond);
+            y += 42;
+        });
+
+        // 管理者リンク
         this.showAdminLink();
     }
 
-    // ============================
-    // 管理者ログイン（最終ページに表示）
-    // ============================
+    // ============================================================
+    // 管理者ログイン
+    // ============================================================
     showAdminLink() {
         const { width } = this.cameras.main;
         const c = this.contentContainer;
-
-        // 管理者リンク（小さく目立たない）
         const adminLink = this.add.text(width - 30, 555, '⚙️', {
             fontSize: '16px', color: '#444',
         }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true }).setDepth(50);
         c.add(adminLink);
-
         adminLink.on('pointerover', () => adminLink.setColor('#666'));
         adminLink.on('pointerout', () => adminLink.setColor('#444'));
-        adminLink.on('pointerdown', () => {
-            this.showPasswordDialog();
-        });
+        adminLink.on('pointerdown', () => this.showPasswordDialog());
     }
 
     showPasswordDialog() {
-        // DOM要素でパスワード入力オーバーレイを作成
         if (this.adminOverlay) return;
-
         const overlay = document.createElement('div');
         overlay.id = 'admin-pw-overlay';
-        overlay.style.cssText = `
-            position:fixed;top:0;left:0;width:100%;height:100%;
-            background:rgba(0,0,0,0.7);display:flex;align-items:center;
-            justify-content:center;z-index:10000;
-        `;
-
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;';
         const box = document.createElement('div');
-        box.style.cssText = `
-            background:#2a2a3e;border:1px solid #8b6914;border-radius:12px;
-            padding:32px;text-align:center;max-width:360px;width:90%;
-        `;
-        box.innerHTML = `
-            <h3 style="color:#f5e6ca;margin-bottom:16px;font-size:18px;">🔒 管理者ログイン</h3>
-            <input type="password" id="admin-pw-input" placeholder="パスワード"
-                style="width:100%;padding:10px 14px;border:1px solid #555;border-radius:6px;
-                background:#1a1a2e;color:#fff;font-size:16px;margin-bottom:12px;outline:none;">
-            <div style="display:flex;gap:12px;justify-content:center;">
-                <button id="admin-pw-cancel"
-                    style="padding:10px 24px;border:1px solid #555;border-radius:6px;
-                    background:transparent;color:#ccc;cursor:pointer;font-size:14px;">
-                    キャンセル
-                </button>
-                <button id="admin-pw-submit"
-                    style="padding:10px 24px;border:none;border-radius:6px;
-                    background:#c0392b;color:#fff;cursor:pointer;font-size:14px;">
-                    ログイン
-                </button>
-            </div>
-            <p id="admin-pw-error" style="color:#e74c3c;font-size:13px;margin-top:8px;"></p>
-        `;
-
+        box.style.cssText = 'background:#2a2a3e;border:1px solid #8b6914;border-radius:12px;padding:32px;text-align:center;max-width:360px;width:90%;';
+        box.innerHTML = '<h3 style="color:#f5e6ca;margin-bottom:16px;font-size:18px;">🔒 管理者ログイン</h3><input type="password" id="admin-pw-input" placeholder="パスワード" style="width:100%;padding:10px 14px;border:1px solid #555;border-radius:6px;background:#1a1a2e;color:#fff;font-size:16px;margin-bottom:12px;outline:none;"><div style="display:flex;gap:12px;justify-content:center;"><button id="admin-pw-cancel" style="padding:10px 24px;border:1px solid #555;border-radius:6px;background:transparent;color:#ccc;cursor:pointer;font-size:14px;">キャンセル</button><button id="admin-pw-submit" style="padding:10px 24px;border:none;border-radius:6px;background:#c0392b;color:#fff;cursor:pointer;font-size:14px;">ログイン</button></div><p id="admin-pw-error" style="color:#e74c3c;font-size:13px;margin-top:8px;"></p>';
         overlay.appendChild(box);
         document.body.appendChild(overlay);
         this.adminOverlay = overlay;
-
         const input = document.getElementById('admin-pw-input');
         input.focus();
-
-        // キャンセル
-        document.getElementById('admin-pw-cancel').addEventListener('click', () => {
-            this.closePasswordDialog();
-        });
-
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) this.closePasswordDialog();
-        });
-
-        // ログイン
+        document.getElementById('admin-pw-cancel').addEventListener('click', () => this.closePasswordDialog());
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) this.closePasswordDialog(); });
         const doLogin = async () => {
             const password = input.value;
             const errEl = document.getElementById('admin-pw-error');
             if (!password) { errEl.textContent = 'パスワードを入力してください'; return; }
-
             try {
-                const res = await fetch('/api/admin/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password }),
-                });
+                const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
                 const data = await res.json();
                 if (!res.ok) { errEl.textContent = data.error; return; }
-
-                // ログイン成功 → 管理画面へ遷移
                 sessionStorage.setItem('adminToken', data.token);
                 this.closePasswordDialog();
                 window.location.href = `/admin.html?token=${data.token}`;
-            } catch (e) {
-                errEl.textContent = '通信エラー';
-            }
+            } catch (e) { errEl.textContent = '通信エラー'; }
         };
-
         document.getElementById('admin-pw-submit').addEventListener('click', doLogin);
         input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
     }
 
     closePasswordDialog() {
-        if (this.adminOverlay) {
-            this.adminOverlay.remove();
-            this.adminOverlay = null;
-        }
+        if (this.adminOverlay) { this.adminOverlay.remove(); this.adminOverlay = null; }
     }
 
-    // ============================
+    // ============================================================
     // ヘルパー
-    // ============================
+    // ============================================================
     _title(container, text) {
         const { width } = this.cameras.main;
-        const title = this.add.text(width / 2, 28, text, {
-            fontSize: GAME_CONFIG.FONT.HEADING_SIZE,
-            color: GAME_CONFIG.COLORS.TEXT_PRIMARY,
+        const t = this.add.text(width / 2, 26, text, {
+            fontSize: '22px', color: GAME_CONFIG.COLORS.TEXT_PRIMARY, fontStyle: 'bold',
         }).setOrigin(0.5);
-        container.add(title);
+        container.add(t);
+    }
+
+    _conditionLabel(cond) {
+        const map = {
+            most_placed_count: '最も多くの具材を配置したプレイヤー',
+            highest_art_score: '彩りボーナスが最も高いプレイヤー',
+            highest_taste_score: '基本ルール点(L1)が最も高いプレイヤー',
+            regional_set_complete: 'ご当地セットを完成させた',
+            symmetrical_blanks_with_min2: '空きマス2つ以上かつ左右対称',
+            placed_count_eq_9: '9マス全てに具材を配置',
+            color_count_gte_6: '色タグ6種類以上を使用',
+            unique_ingredients_gte_3: '他の全プレイヤーと被らない具材を3つ以上',
+            customer_all_conditions_met: '審査員1人の全条件を満たした',
+        };
+        return '条件: ' + (map[cond] || cond);
     }
 }
